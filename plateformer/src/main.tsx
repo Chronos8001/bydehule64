@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
+import 'regenerator-runtime/runtime';
 import { router } from './router';
 import './index.css';
 
