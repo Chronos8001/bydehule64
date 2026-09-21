@@ -16,15 +16,22 @@ type GameStatus = 'playing' | 'won' | 'lost';
 interface Position { x: number; y: number; }
 interface Platform { position: Position; size: { width: number; height: number }; }
 interface Player { position: Position; velocity: Position; size: number; onGround: boolean; }
+interface Enemy { position: Position; size: number; direction: -1 | 1; speed: number; patrol: { minX: number; maxX: number }; }
 interface Collectible { position: Position; collected: boolean; }
-interface World { player: Player; platforms: Platform[]; coins: Collectible[]; pressedKeys: Record<string, boolean>; }
+interface World { player: Player; enemies: Enemy[]; platforms: Platform[]; coins: Collectible[]; pressedKeys: Record<string, boolean>; }
 interface GameEvent { type: 'win' | 'lose'; }
 interface EngineEntities { world: World & { renderer: typeof WorldSprite }; }
 
 const initialWorld = (): World => ({
   player: { position: { x: 80, y: 365 }, velocity: { x: 0, y: 0 }, size: PLAYER_SIZE, onGround: false },
+  enemies: [
+    { position: { x: 490, y: 402 }, size: 28, direction: 1, speed: 1.5, patrol: { minX: 440, maxX: 570 } },
+    { position: { x: 420, y: 262 }, size: 28, direction: -1, speed: 1, patrol: { minX: 395, maxX: 490 } },
+  ],
   platforms: [
-    { position: { x: 0, y: 430 }, size: { width: WORLD_WIDTH, height: 50 } },
+    { position: { x: 0, y: 430 }, size: { width: 260, height: 50 } },
+    { position: { x: 360, y: 430 }, size: { width: 240, height: 50 } },
+    { position: { x: 700, y: 430 }, size: { width: 200, height: 50 } },
     { position: { x: 155, y: 345 }, size: { width: 145, height: 20 } },
     { position: { x: 390, y: 290 }, size: { width: 135, height: 20 } },
     { position: { x: 625, y: 230 }, size: { width: 150, height: 20 } },
@@ -41,13 +48,7 @@ const overlaps = (first: Position, firstSize: number, second: Position, secondSi
   first.x < second.x + secondSize && first.x + firstSize > second.x &&
   first.y < second.y + secondSize && first.y + firstSize > second.y;
 
-const WorldSprite = ({ player, platforms, coins }: World) => (
-  <div className="platformer-world">
-    {platforms.map((platform, index) => <div className="platformer-platform" key={index} style={{ left: platform.position.x, top: platform.position.y, width: platform.size.width, height: platform.size.height }} />)}
-    {coins.map((coin, index) => !coin.collected && <div className="platformer-coin" key={index} style={{ left: coin.position.x, top: coin.position.y }} />)}
-    <div className="platformer-player" style={{ left: player.position.x, top: player.position.y, width: player.size, height: player.size }} />
-  </div>
-);
+const WorldSprite = () => null;
 
 const gameSystems = [
   (entities: EngineEntities, { input, dispatch }: { input: readonly { name: string; payload?: { key?: string } }[]; dispatch: (event: GameEvent) => void }) => {
@@ -77,11 +78,24 @@ const gameSystems = [
       }
     });
 
+    const enemies = world.enemies.map((enemy) => {
+      const nextX = enemy.position.x + enemy.direction * enemy.speed;
+      const reachedPatrolEdge = nextX <= enemy.patrol.minX || nextX >= enemy.patrol.maxX;
+      const direction = reachedPatrolEdge ? (enemy.direction * -1) as -1 | 1 : enemy.direction;
+      return { ...enemy, position: { ...enemy.position, x: Math.max(enemy.patrol.minX, Math.min(enemy.patrol.maxX, nextX)) }, direction };
+    });
+    const stompedEnemy = velocityY > 0
+      ? enemies.find((enemy) => player.position.y + player.size <= enemy.position.y + 6 && position.y + player.size >= enemy.position.y && position.x + player.size > enemy.position.x && position.x < enemy.position.x + enemy.size)
+      : undefined;
+    const remainingEnemies = stompedEnemy ? enemies.filter((enemy) => enemy !== stompedEnemy) : enemies;
+    const bouncedOnEnemy = stompedEnemy !== undefined;
+    if (stompedEnemy) position = { ...position, y: stompedEnemy.position.y - player.size };
+    const hitEnemy = remainingEnemies.some((enemy) => overlaps(position, player.size, enemy.position, enemy.size));
     const coins = world.coins.map((coin) => ({ ...coin, collected: coin.collected || overlaps(position, player.size, coin.position, 18) }));
     if (coins.every((coin) => coin.collected)) dispatch({ type: 'win' });
-    if (position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
+    if (hitEnemy || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
 
-    return { ...entities, world: { ...world, player: { ...player, position, velocity: { x: velocityX, y: onGround ? 0 : velocityY }, onGround }, coins, pressedKeys } };
+    return { ...entities, world: { ...world, player: { ...player, position, velocity: { x: velocityX, y: bouncedOnEnemy ? JUMP_SPEED * 0.65 : onGround ? 0 : velocityY }, onGround: bouncedOnEnemy ? false : onGround }, enemies: remainingEnemies, coins, pressedKeys } };
   },
 ];
 
