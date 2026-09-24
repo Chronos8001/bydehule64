@@ -1,15 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import './Home.css';
+
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col items-center text-center space-y-6">
-      <h1 className="text-4xl text-amber-400">SUPER MARIO JS</h1>
-      <div className="flex flex-col gap-4 w-64">
-        <Button onClick={() => navigate('/game')}>START GAME</Button>
-        <Button variant="secondary" onClick={() => navigate('/leaderboard')}>SCORES</Button>
-        <Button variant="secondary" onClick={() => navigate('/rules')}>RULES</Button>
+    <div className="home-menu">
+      <h1 className="home-title">bidule 64</h1>
+      <div className="home-screen-heading">Select a Game</div>
+      <div className="home-menu-buttons">
+        <Button variant="menuGreen" onClick={() => navigate('/game')}>bidule Game</Button>
+        <Button variant="menuGreen" onClick={() => navigate('/leaderboard')}>bidule score</Button>
+        <Button variant="menuBlue" onClick={() => navigate('/rules')}>Options</Button>
       </div>
     </div>
   );
