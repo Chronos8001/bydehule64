@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { GameEngine } from 'react-game-engine';
 import { Button } from '../components/ui/Button';
 import { introLines } from '../data/scriptDialogue';
@@ -19,10 +19,16 @@ const formatTime = (ms: number) => {
 
 export const GamePage: React.FC = () => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<GameStatus>('intro');
+  const [searchParams] = useSearchParams();
+
+  // `?level=3` : entrée directe depuis le Dev Mode, sans l'introduction.
+  const requested = Number(searchParams.get('level'));
+  const startIndex = Number.isInteger(requested) && requested >= 1 && requested <= levels.length ? requested - 1 : 0;
+
+  const [status, setStatus] = useState<GameStatus>(startIndex === 0 ? 'intro' : 'playing');
   const [runId, setRunId] = useState(0);
   const [introIndex, setIntroIndex] = useState(0);
-  const [levelIndex, setLevelIndex] = useState(0);
+  const [levelIndex, setLevelIndex] = useState(startIndex);
   const [coins, setCoins] = useState(0);
   const [clearedLevels, setClearedLevels] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -71,13 +77,13 @@ export const GamePage: React.FC = () => {
     setElapsedMs(0);
     setCoins(0);
     setClearedLevels(0);
-    setLevelIndex(0);
+    setLevelIndex(startIndex);
     setSubmitState('idle');
     setSubmitError(null);
     setIntroIndex(0);
     setStatus('playing');
     setRunId((run) => run + 1);
-  }, []);
+  }, [startIndex]);
 
   const handleEvent = useCallback((event: GameEvent) => {
     if (statusRef.current !== 'playing') return;
@@ -179,7 +185,7 @@ export const GamePage: React.FC = () => {
       </div>
 
       <div className="platformer-stage" onClick={focusEngine} aria-label="Platformer game. Use arrow keys or A and D to move, and Up or W to jump. Reach the door on the right to finish the level.">
-        <GameEngine className="platformer-engine" key={runId} systems={gameSystems} entities={{ world: { ...levels[levelIndex]!(), renderer: WorldSprite } }} onEvent={handleEvent} running={status === 'playing'} />
+        <GameEngine className="platformer-engine" key={runId} systems={gameSystems} entities={{ world: { ...levels[levelIndex]!.build(), renderer: WorldSprite } }} onEvent={handleEvent} running={status === 'playing'} />
 
         {status === 'intro' && (
           <div className="platformer-overlay platformer-intro" aria-live="polite">
