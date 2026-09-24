@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEve
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { GameEngine } from 'react-game-engine';
 import { Button } from '../components/ui/Button';
-import { introLines } from '../data/scriptDialogue';
+import { HERO_NAME, levelDialogues } from '../data/scriptDialogue';
 import { levels } from '../game/levels';
 import { WorldSprite } from '../game/WorldSprite';
 import { gameSystems } from '../game/systems';
@@ -17,15 +17,18 @@ const formatTime = (ms: number) => {
   return `${String(Math.floor(totalSeconds / 60)).padStart(2, '0')}:${String(totalSeconds % 60).padStart(2, '0')}`;
 };
 
+const dialogueFor = (levelIndex: number) => levelDialogues[levelIndex + 1] ?? [];
+
 export const GamePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // `?level=3` : entrée directe depuis le Dev Mode, sans l'introduction.
+  // `?level=3` : entrée directe depuis le Dev Mode, dialogues sautés.
   const requested = Number(searchParams.get('level'));
-  const startIndex = Number.isInteger(requested) && requested >= 1 && requested <= levels.length ? requested - 1 : 0;
+  const devStart = Number.isInteger(requested) && requested >= 1 && requested <= levels.length;
+  const startIndex = devStart ? requested - 1 : 0;
 
-  const [status, setStatus] = useState<GameStatus>(startIndex === 0 ? 'intro' : 'playing');
+  const [status, setStatus] = useState<GameStatus>(!devStart && dialogueFor(0).length > 0 ? 'intro' : 'playing');
   const [runId, setRunId] = useState(0);
   const [introIndex, setIntroIndex] = useState(0);
   const [levelIndex, setLevelIndex] = useState(startIndex);
@@ -52,24 +55,26 @@ export const GamePage: React.FC = () => {
     return () => window.clearInterval(intervalId);
   }, [status]);
 
-  const advanceIntro = useCallback(() => {
-    setIntroIndex((current) => {
-      const nextIndex = current + 1;
-      if (nextIndex >= introLines.length) {
-        setStatus('playing');
-        setRunId((run) => run + 1);
-        return 0;
-      }
-      return nextIndex;
-    });
-  }, []);
+  const dialogue = devStart ? [] : dialogueFor(levelIndex);
 
-  /** Niveau suivant : les pièces et le chrono de la partie sont conservés. */
+  const advanceIntro = useCallback(() => {
+    const nextIndex = introIndex + 1;
+    if (nextIndex >= dialogue.length) {
+      setIntroIndex(0);
+      setStatus('playing');
+      return;
+    }
+    setIntroIndex(nextIndex);
+  }, [dialogue.length, introIndex]);
+
+  /** Niveau suivant : les pièces et le chrono sont conservés, le dialogue remet le jeu en pause. */
   const nextLevel = useCallback(() => {
-    setLevelIndex((current) => current + 1);
-    setStatus('playing');
+    const next = levelIndex + 1;
+    setLevelIndex(next);
+    setIntroIndex(0);
+    setStatus(!devStart && dialogueFor(next).length > 0 ? 'intro' : 'playing');
     setRunId((run) => run + 1);
-  }, []);
+  }, [devStart, levelIndex]);
 
   /** Nouvelle partie : tous les compteurs repartent de zéro. */
   const newGame = useCallback(() => {
@@ -81,9 +86,9 @@ export const GamePage: React.FC = () => {
     setSubmitState('idle');
     setSubmitError(null);
     setIntroIndex(0);
-    setStatus('playing');
+    setStatus(!devStart && dialogueFor(startIndex).length > 0 ? 'intro' : 'playing');
     setRunId((run) => run + 1);
-  }, [startIndex]);
+  }, [devStart, startIndex]);
 
   const handleEvent = useCallback((event: GameEvent) => {
     if (statusRef.current !== 'playing') return;
@@ -145,6 +150,10 @@ export const GamePage: React.FC = () => {
   const isLastLevel = levelIndex >= levels.length - 1;
   const recap = `${coins} pièces · ${clearedLevels} niveau(x) · ${formatTime(elapsedMs)}`;
 
+  const line = dialogue[introIndex] ?? dialogue[dialogue.length - 1];
+  const speaker = typeof line === 'object' ? line.speaker : HERO_NAME;
+  const spokenText = typeof line === 'object' ? line.text : line;
+
   const scoreForm =
     submitState === 'saved' ? (
       <>
@@ -189,9 +198,9 @@ export const GamePage: React.FC = () => {
 
         {status === 'intro' && (
           <div className="platformer-overlay platformer-intro" aria-live="polite">
-            <div className="dialogue-box" role="dialog" aria-label="Intro dialogue" onClick={advanceIntro}>
-              <p className="dialogue-name">The Hero</p>
-              <p>{introLines[introIndex] ?? introLines[introLines.length - 1]}</p>
+            <div className="dialogue-box" data-villain={speaker !== HERO_NAME} role="dialog" aria-label="Intro dialogue" onClick={advanceIntro}>
+              <p className="dialogue-name">{speaker}</p>
+              <p>{spokenText}</p>
               <span className="dialogue-hint">Press Enter</span>
             </div>
           </div>
