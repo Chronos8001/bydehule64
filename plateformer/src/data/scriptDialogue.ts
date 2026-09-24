@@ -1,0 +1,17 @@
+export const introLines = [
+  'AAAAAAAAAAAAAAAAAAAAAAAAAAAH *boom*',
+  'ouch...',
+  'that really hurt...',
+  'I need to get up...',
+  'Where am I?',
+  'what.. oh no.. not again...',
+  'This shit place again',
+  'I remember Chtululu killing me...',
+  'why am I still here?',
+  'and... why do i look like that?',
+  'why the fuck do i have a beard?',
+  'kinda like it actually.',
+  'but still, this is weird...',
+  'I need to figure out what is going on...',
+  'I should start by exploring this place...',
+];
