@@ -1,4 +1,4 @@
-import { useCallback, useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameEngine } from 'react-game-engine';
 import { Button } from '../components/ui/Button';
@@ -14,7 +14,7 @@ const FALL_GRAVITY = 0.25;
 const MOVE_SPEED = 3;
 const JUMP_SPEED = -11;
 
-type GameStatus = 'playing' | 'won' | 'lost';
+type GameStatus = 'intro' | 'playing' | 'won' | 'lost';
 
 interface Position { x: number; y: number; }
 interface Platform { position: Position; size: { width: number; height: number }; }
@@ -26,7 +26,7 @@ interface GameEvent { type: 'win' | 'lose'; }
 interface EngineEntities { world: World & { renderer: typeof WorldSprite }; }
 
 const initialWorld = (): World => ({
-  player: { position: { x: 80, y: 365 }, velocity: { x: 0, y: 0 }, size: PLAYER_SIZE, onGround: false },
+  player: { position: { x: 80, y: 30 }, velocity: { x: 0, y: 0 }, size: PLAYER_SIZE, onGround: false },
   enemies: [
     { position: { x: 490, y: 402 }, size: 28, direction: 1, speed: 0.4, patrol: { minX: 440, maxX: 570 } },
     { position: { x: 420, y: 262 }, size: 28, direction: -1, speed: 0.3, patrol: { minX: 395, maxX: 490 } },
@@ -82,6 +82,24 @@ const WorldSprite = (world: World) => (
   </div>
 );
 
+const introLines = [
+  'AAAAAAAAAAAAAAAAAAAAAAAAAAAH *boom*',
+  'ouch...',
+  'that really hurt...',
+  'I need to get up...',
+  'Where am I?',
+  'what.. oh no.. not again...',
+  'This shit place again',
+  'I remember Chtululu killing me...',
+  'why am I still here?',
+  'and... why do i look like that?',
+  'why the fuck do i have a beard?',
+  'kinda like it actually.',
+  'but still, this is weird...',
+  'I need to figure out what is going on...',
+  'I should start by exploring this place...',
+];
+
 const gameSystems = [
   (entities: EngineEntities, { input, dispatch }: { input: readonly { name: string; payload?: { key?: string } }[]; dispatch: (event: GameEvent) => void }) => {
     const world = entities.world;
@@ -133,13 +151,45 @@ const gameSystems = [
 
 export const GamePage: React.FC = () => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<GameStatus>('playing');
+  const [status, setStatus] = useState<GameStatus>('intro');
   const [runId, setRunId] = useState(0);
-  const restart = useCallback(() => { setStatus('playing'); setRunId((run) => run + 1); }, []);
+  const [introIndex, setIntroIndex] = useState(0);
+
+  const advanceIntro = useCallback(() => {
+    setIntroIndex((current) => {
+      const nextIndex = current + 1;
+      if (nextIndex >= introLines.length) {
+        setStatus('playing');
+        setRunId((run) => run + 1);
+        return 0;
+      }
+      return nextIndex;
+    });
+  }, []);
+
+  const restart = useCallback(() => {
+    setStatus('playing');
+    setIntroIndex(0);
+    setRunId((run) => run + 1);
+  }, []);
+
   const handleEvent = useCallback((event: GameEvent) => {
     if (event.type === 'win') setStatus('won');
     if (event.type === 'lose') setStatus('lost');
   }, []);
+
+  useEffect(() => {
+    if (status !== 'intro') return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      advanceIntro();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [advanceIntro, status]);
   const focusEngine = (event: MouseEvent<HTMLDivElement>) => {
     event.currentTarget.querySelector<HTMLElement>('.platformer-engine')?.focus();
   };
@@ -148,7 +198,16 @@ export const GamePage: React.FC = () => {
     <section className="platformer-shell">
       <div className="platformer-stage" onClick={focusEngine} aria-label="Platformer game. Use arrow keys or A and D to move, and Up or W to jump.">
         <GameEngine className="platformer-engine" key={runId} systems={gameSystems} entities={{ world: { ...initialWorld(), renderer: WorldSprite } }} onEvent={handleEvent} running={status === 'playing'} />
-        {status !== 'playing' && <div className="platformer-overlay"><p>{status === 'won' ? 'LEVEL CLEAR' : 'TRY AGAIN'}</p><Button onClick={restart}>{status === 'won' ? 'NEXT LEVEL' : 'RESTART'}</Button></div>}
+        {status === 'intro' && (
+          <div className="platformer-overlay platformer-intro" aria-live="polite">
+            <div className="dialogue-box" role="dialog" aria-label="Intro dialogue" onClick={advanceIntro}>
+              <p className="dialogue-name">The Hero</p>
+              <p>{introLines[introIndex] ?? introLines[introLines.length - 1]}</p>
+              <span className="dialogue-hint">Press Enter</span>
+            </div>
+          </div>
+        )}
+        {status !== 'playing' && status !== 'intro' && <div className="platformer-overlay"><p>{status === 'won' ? 'LEVEL CLEAR' : 'TRY AGAIN'}</p><Button onClick={restart}>{status === 'won' ? 'NEXT LEVEL' : 'RESTART'}</Button></div>}
       </div>
       <Button variant="danger" onClick={() => navigate('/')}>BACK TO MENU</Button>
     </section>
