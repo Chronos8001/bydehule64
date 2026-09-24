@@ -1,9 +1,17 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui/Button';
 import { getLeaderboard, listGames, type LeaderboardMetric } from '../services/api';
 import { useApiResource } from '../hooks/useApiResource';
+import './Panel.css';
+
+const formatTime = (ms: number) => {
+  const totalSeconds = Math.floor(ms / 1000);
+  return `${String(Math.floor(totalSeconds / 60)).padStart(2, '0')}:${String(totalSeconds % 60).padStart(2, '0')}`;
+};
 
 export function Leaderboard() {
+  const navigate = useNavigate();
   const [game, setGame] = useState<string>('');
   const [metric, setMetric] = useState<LeaderboardMetric>('score');
 
@@ -22,92 +30,101 @@ export function Leaderboard() {
   }
 
   return (
-    <section>
-      <h1>Leaderboard</h1>
+    <section className="panel-screen">
+      <h1 className="panel-title">Classement</h1>
 
-      {gamesState.state.status === 'loading' && <p>Chargement des jeux…</p>}
+      <div className="panel-section">
+        <h2>Filtres</h2>
 
-      {gamesState.state.status === 'error' && (
-        <p role="alert">
-          Impossible de charger les jeux : {gamesState.state.error.message}{' '}
-          <button onClick={gamesState.reload}>Réessayer</button>
-        </p>
-      )}
+        {gamesState.state.status === 'loading' && <p>Chargement des jeux…</p>}
 
-      {gamesState.state.status === 'success' && gamesState.state.data.data.length === 0 && (
-        <p>Aucun jeu enregistré pour l'instant.</p>
-      )}
+        {gamesState.state.status === 'error' && (
+          <p role="alert" className="panel-alert">
+            Impossible de charger les jeux : {gamesState.state.error.message}
+            <Button variant="secondary" onClick={gamesState.reload}>Réessayer</Button>
+          </p>
+        )}
 
-      {gamesState.state.status === 'success' && gamesState.state.data.data.length > 0 && (
-        <div>
-          <label htmlFor="game-select">Jeu</label>
-          <select
-            id="game-select"
-            value={game}
-            onChange={(event) => setGame(event.target.value)}
-          >
-            {gamesState.state.data.data.map((g) => (
-              <option key={g.game} value={g.game}>
-                {g.game} ({g.entries} parties)
-              </option>
-            ))}
-          </select>
+        {gamesState.state.status === 'success' && gamesState.state.data.data.length === 0 && (
+          <p>Aucune partie enregistrée pour l'instant. Lancez une partie pour ouvrir le bal.</p>
+        )}
 
-          <label htmlFor="metric-select">Classer par</label>
-          <select
-            id="metric-select"
-            value={metric}
-            onChange={(event) => setMetric(event.target.value as LeaderboardMetric)}
-          >
-            <option value="score">Meilleur score</option>
-            <option value="coins">Plus de pièces</option>
-            <option value="levels">Plus de niveaux</option>
-            <option value="time">Temps le plus court</option>
-          </select>
-        </div>
-      )}
+        {gamesState.state.status === 'success' && gamesState.state.data.data.length > 0 && (
+          <div className="panel-filters">
+            <label htmlFor="game-select">
+              Jeu
+              <select id="game-select" value={game} onChange={(event) => setGame(event.target.value)}>
+                {gamesState.state.data.data.map((g) => (
+                  <option key={g.game} value={g.game}>
+                    {g.game} ({g.entries} parties)
+                  </option>
+                ))}
+              </select>
+            </label>
 
-      {leaderboardState.state.status === 'loading' && <p>Chargement du classement…</p>}
+            <label htmlFor="metric-select">
+              Classer par
+              <select id="metric-select" value={metric} onChange={(event) => setMetric(event.target.value as LeaderboardMetric)}>
+                <option value="score">Meilleur score</option>
+                <option value="coins">Plus de pièces</option>
+                <option value="levels">Plus de niveaux</option>
+                <option value="time">Temps le plus court</option>
+              </select>
+            </label>
+          </div>
+        )}
+      </div>
 
-      {leaderboardState.state.status === 'error' && (
-        <p role="alert">
-          Erreur : {leaderboardState.state.error.message}{' '}
-          <button onClick={leaderboardState.reload}>Réessayer</button>
-        </p>
-      )}
+      <div className="panel-section">
+        <h2>Meilleures parties</h2>
 
-      {leaderboardState.state.status === 'success' && leaderboardState.state.data.data.length === 0 && game && (
-        <p>Pas encore de score pour {game}.</p>
-      )}
+        {leaderboardState.state.status === 'loading' && <p>Chargement du classement…</p>}
 
-      {leaderboardState.state.status === 'success' && leaderboardState.state.data.data.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>Rang</th>
-              <th>Joueur</th>
-              <th>Score</th>
-              <th>Pièces</th>
-              <th>Niveaux</th>
-              <th>Temps</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaderboardState.state.data.data.map((row) => (
-              <tr key={`${row.rank}-${row.player}`}>
-                <td>{row.rank}</td>
-                <td>{row.player}</td>
-                <td>{row.score}</td>
-                <td>{row.coins}</td>
-                <td>{row.levels}</td>
-                <td>{(row.durationMs / 1000).toFixed(1)} s</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        {leaderboardState.state.status === 'error' && (
+          <p role="alert" className="panel-alert">
+            Erreur : {leaderboardState.state.error.message}
+            <Button variant="secondary" onClick={leaderboardState.reload}>Réessayer</Button>
+          </p>
+        )}
 
-      <Link to="/">Back</Link>
+        {leaderboardState.state.status === 'success' && leaderboardState.state.data.data.length === 0 && game && (
+          <p>Pas encore de score pour {game}.</p>
+        )}
+
+        {leaderboardState.state.status === 'success' && leaderboardState.state.data.data.length > 0 && (
+          <div className="score-table-wrap">
+            <table className="score-table">
+              <thead>
+                <tr>
+                  <th>Rang</th>
+                  <th>Joueur</th>
+                  <th>Score</th>
+                  <th>Pièces</th>
+                  <th>Niveaux</th>
+                  <th>Temps</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboardState.state.data.data.map((row) => (
+                  <tr key={`${row.rank}-${row.player}`} data-podium={row.rank <= 3}>
+                    <td className="rank-cell">{row.rank}</td>
+                    <td>{row.player}</td>
+                    <td>{row.score}</td>
+                    <td>{row.coins}</td>
+                    <td>{row.levels}</td>
+                    <td>{formatTime(row.durationMs)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="panel-actions">
+        <Button variant="primary" onClick={() => navigate('/game')}>Jouer</Button>
+        <Button variant="secondary" onClick={() => navigate('/')}>Retour</Button>
+      </div>
     </section>
   );
 }
