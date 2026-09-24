@@ -1,4 +1,4 @@
-import type { EngineEntities, GameEvent, Position, Zone } from './types';
+import type { EngineEntities, Flamethrower, GameEvent, Position, Zone } from './types';
 import { PLAYER_SIZE, WORLD_HEIGHT } from './constants';
 
 const GRAVITY = 0.5;
@@ -23,6 +23,8 @@ const overlaps = (first: Position, firstSize: number, second: Position, secondSi
 const touches = (position: Position, size: number, zone: Zone) =>
   position.x < zone.position.x + zone.size.width && position.x + size > zone.position.x &&
   position.y < zone.position.y + zone.size.height && position.y + size > zone.position.y;
+
+export const isFlameActive = (flame: Flamethrower) => flame.timer < flame.activeSteps;
 
 const step = (world: GameWorld, jumpPressed: boolean, dispatch: Dispatch): GameWorld => {
   const player = world.player;
@@ -90,8 +92,14 @@ const step = (world: GameWorld, jumpPressed: boolean, dispatch: Dispatch): GameW
 
   const hitSpike = world.spikes.some((spike) => touches(position, player.size, spike));
 
+  const flamethrowers = world.flamethrowers?.map((flame) => ({
+    ...flame,
+    timer: (flame.timer + 1) % (flame.activeSteps + flame.idleSteps),
+  }));
+  const hitFlame = flamethrowers?.some((flame) => isFlameActive(flame) && touches(position, player.size, flame)) ?? false;
+
   if (!boss && touches(position, player.size, world.exit)) dispatch({ type: 'win' });
-  if (hitEnemy || hitBoss || hitSpike || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
+  if (hitEnemy || hitBoss || hitSpike || hitFlame || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
 
   return {
     ...world,
@@ -104,6 +112,7 @@ const step = (world: GameWorld, jumpPressed: boolean, dispatch: Dispatch): GameW
     enemies: remainingEnemies,
     coins,
     boss,
+    flamethrowers,
   };
 };
 

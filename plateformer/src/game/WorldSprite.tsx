@@ -1,7 +1,11 @@
 import skel from '../../skel.png';
 import protagonist from '../../protagoniste.png';
 import { WORLD_HEIGHT, WORLD_WIDTH } from './constants';
+import { isFlameActive } from './systems';
 import type { World } from './types';
+
+// Dernier demi-seconde avant l'allumage : la buse crache des étincelles.
+const WARNING_STEPS = 30;
 
 export const WorldSprite = (world: World) => {
   const camera = Math.max(
@@ -43,6 +47,22 @@ export const WorldSprite = (world: World) => {
             style={{ left: percentX(spike.position.x), top: percentY(spike.position.y), width: percentX(spike.size.width), height: percentY(spike.size.height) }}
           />
         ))}
+        {(world.flamethrowers ?? []).map((flame) => {
+          const active = isFlameActive(flame);
+          const warming = !active && flame.timer >= flame.activeSteps + flame.idleSteps - WARNING_STEPS;
+          return (
+            <div
+              className={`dungeon-flame flame-${flame.direction}`}
+              data-active={active}
+              data-warming={warming}
+              key={`${flame.position.x}-${flame.position.y}`}
+              style={{ left: percentX(flame.position.x), top: percentY(flame.position.y), width: percentX(flame.size.width), height: percentY(flame.size.height) }}
+            >
+              <span className="flame-jet" />
+              <span className="flame-nozzle" />
+            </div>
+          );
+        })}
         <div
           className="dungeon-exit"
           data-locked={world.boss !== undefined}

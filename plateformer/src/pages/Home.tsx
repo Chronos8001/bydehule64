@@ -12,7 +12,7 @@ export const Home: React.FC = () => {
       <div className="home-menu-buttons">
         <Button variant="menuGreen" onClick={() => navigate('/game')}>bidule Game</Button>
         <Button variant="menuGreen" onClick={() => navigate('/leaderboard')}>bidule score</Button>
-        <Button variant="menuBlue" onClick={() => navigate('/rules')}>Options</Button>
+        <Button variant="menuBlue" onClick={() => navigate('/rules')}>Aide</Button>
       </div>
     </div>
   );

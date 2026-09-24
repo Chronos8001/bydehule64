@@ -49,9 +49,13 @@ export const level3 = (): World => ({
   ],
   spikes: [
     { position: { x: 360, y: 410 }, size: { width: 60, height: 20 } },
-    { position: { x: 905, y: 410 }, size: { width: 55, height: 20 } },
-    { position: { x: 1440, y: 410 }, size: { width: 60, height: 20 } },
     { position: { x: 1980, y: 410 }, size: { width: 60, height: 20 } },
+  ],
+  flamethrowers: [
+    // Premier contact avec le piège : cycle lent, largement le temps de passer.
+    { position: { x: 940, y: 290 }, size: { width: 34, height: 140 }, direction: 'up', activeSteps: 60, idleSteps: 150, timer: 0 },
+    { position: { x: 1470, y: 290 }, size: { width: 34, height: 140 }, direction: 'up', activeSteps: 90, idleSteps: 120, timer: 105 },
+    { position: { x: 2170, y: 0 }, size: { width: 34, height: 280 }, direction: 'down', activeSteps: 60, idleSteps: 90, timer: 30 },
   ],
   exit: { position: { x: 2345, y: 330 }, size: { width: 40, height: 100 } },
   pressedKeys: {},

@@ -38,8 +38,20 @@ export interface Zone {
   size: { width: number; height: number };
 }
 
-/** Ennemi de fin de niveau : plusieurs coups à encaisser, et il verrouille la sortie. */
-export interface Boss {
+/** Piège périodique : un jet de flammes qui s'allume et s'éteint en boucle. */
+export interface Flamethrower {
+  position: Position;
+  size: { width: number; height: number };
+  /** Sens du jet, pour placer la buse au bon bout de la zone. */
+  direction: 'up' | 'down';
+  /** Durées du cycle, en pas de simulation (60 pas = 1 seconde). */
+  activeSteps: number;
+  idleSteps: number;
+  /** Position courante dans le cycle ; décaler les valeurs désynchronise plusieurs pièges. */
+  timer: number;
+}
+
+/** Ennemi de fin de niveau : plusieurs coups à encaisser, et il verrouille la sortie. */export interface Boss {
   position: Position;
   size: number;
   direction: -1 | 1;
@@ -59,6 +71,8 @@ export interface World {
   platforms: Platform[];
   coins: Collectible[];
   spikes: Zone[];
+  /** Pièges à flammes, absents des niveaux qui n'en utilisent pas. */
+  flamethrowers?: Flamethrower[];
   exit: Zone;
   /** Présent uniquement dans une chambre de boss : la sortie reste fermée tant qu'il vit. */
   boss?: Boss;

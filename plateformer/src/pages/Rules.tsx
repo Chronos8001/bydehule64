@@ -34,9 +34,12 @@ export const Rules: React.FC = () => {
         <h2>Objectif</h2>
         <ul className="panel-list">
           <li>Atteindre la porte tout à droite pour terminer un niveau.</li>
-          <li>Les squelettes s'éliminent en leur sautant sur la tête.</li>
-          <li>Les pics et une chute dans le vide sont mortels.</li>
-          <li>Le boss du dernier niveau encaisse trois coups et verrouille la porte.</li>
+          <li>Les squelettes s'éliminent en leur sautant sur la tête, mais attention à ne pas les toucher autrement.</li>
+          <li>Les pics, les lances flammes et une chute dans le vide sont mortels.</li>
+          <li>Les lances flammes s'activent par cycles, observez leur rythme pour passer sans danger.</li>
+          <li>Observez bien les pièges et les ennemis pour anticiper leurs mouvements.</li>
+          <li>Collectez les pièces pour augmenter votre score.</li>
+          <li>Évitez de mourir pour ne pas perdre votre progression dans le niveau.</li>
         </ul>
       </div>
 
