@@ -28,14 +28,17 @@ statsRouter.get('/games', (_req: Request, res: Response, next: NextFunction) => 
 statsRouter.get('/leaderboard', (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = leaderboardQuerySchema.parse(req.query);
-    const orderBy =
-      query.metric === 'score'
-        ? 'score DESC, duration_ms ASC, created_at ASC'
-        : 'duration_ms ASC, score DESC, created_at ASC';
+    const ORDER_BY: Record<typeof query.metric, string> = {
+      score: 'score DESC, duration_ms ASC, created_at ASC',
+      time: 'duration_ms ASC, score DESC, created_at ASC',
+      coins: 'coins DESC, duration_ms ASC, created_at ASC',
+      levels: 'levels DESC, coins DESC, duration_ms ASC',
+    };
+    const orderBy = ORDER_BY[query.metric];
 
     const rows = db
       .prepare(
-        `SELECT player, score, duration_ms AS durationMs, created_at AS createdAt
+        `SELECT player, score, coins, levels, duration_ms AS durationMs, created_at AS createdAt
          FROM (
            SELECT *, ROW_NUMBER() OVER (PARTITION BY player ORDER BY ${orderBy}) AS rn
            FROM scores WHERE game = :game
@@ -67,6 +70,8 @@ statsRouter.get('/players/:player', (req: Request, res: Response, next: NextFunc
                 COUNT(*)           AS gamesPlayed,
                 MAX(score)         AS bestScore,
                 ROUND(AVG(score))  AS averageScore,
+                SUM(coins)         AS totalCoins,
+                MAX(levels)        AS bestLevels,
                 MIN(duration_ms)   AS fastestMs,
                 SUM(duration_ms)   AS totalTimeMs,
                 MAX(created_at)    AS lastPlayedAt

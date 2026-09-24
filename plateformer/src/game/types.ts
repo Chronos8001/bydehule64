@@ -41,7 +41,7 @@ export interface World {
 }
 
 export interface GameEvent {
-  type: 'win' | 'lose';
+  type: 'win' | 'lose' | 'coin';
 }
 
 export type WorldRenderer = (world: World) => ReactElement;

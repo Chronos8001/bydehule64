@@ -11,14 +11,18 @@ export interface ScoreEntry {
   game: string;
   /** Points marqués (entier positif). */
   score: number;
+  /** Pièces ramassées pendant la partie. */
+  coins: number;
+  /** Nombre de niveaux terminés. */
+  levels: number;
   /** Durée de la partie en millisecondes. */
   durationMs: number;
   /** Date ISO 8601 (UTC). */
   createdAt: string;
 }
 
-/** Critère de classement : au score, au temps, ou à la date. */
-export type SortKey = 'score' | 'time' | 'date';
+/** Critère de classement. */
+export type SortKey = 'score' | 'time' | 'date' | 'coins' | 'levels';
 
 export type SortOrder = 'asc' | 'desc';
 
@@ -60,6 +64,8 @@ export interface LeaderboardRow {
   rank: number;
   player: string;
   score: number;
+  coins: number;
+  levels: number;
   durationMs: number;
   createdAt: string;
 }
@@ -70,6 +76,8 @@ export interface PlayerStats {
   gamesPlayed: number;
   bestScore: number;
   averageScore: number;
+  totalCoins: number;
+  bestLevels: number;
   fastestMs: number;
   totalTimeMs: number;
   lastPlayedAt: string;
@@ -86,6 +94,7 @@ export interface GameSummary {
 export interface CreateScoreInput {
   player: string;
   game: string;
-  score: number;
+  coins: number;
+  levels: number;
   durationMs: number;
 }

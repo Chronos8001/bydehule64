@@ -58,6 +58,9 @@ export const gameSystems = [
     const hitEnemy = remainingEnemies.some((enemy) => overlaps(position, player.size, enemy.position, enemy.size));
     const coins = world.coins.map((coin) => ({ ...coin, collected: coin.collected || overlaps(position, player.size, coin.position, 18) }));
 
+    const pickedUp = coins.filter((coin, index) => coin.collected && !world.coins[index]!.collected).length;
+    for (let i = 0; i < pickedUp; i += 1) dispatch({ type: 'coin' });
+
     if (coins.every((coin) => coin.collected)) dispatch({ type: 'win' });
     if (hitEnemy || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
 

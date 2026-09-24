@@ -13,6 +13,12 @@ import type {
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
+/** Identifiant du jeu envoyé à l'API pour toutes les parties. */
+export const GAME_NAME = 'dungeon-of-bydhule';
+
+/** Métriques acceptées par `/api/leaderboard`. */
+export type LeaderboardMetric = 'score' | 'time' | 'coins' | 'levels';
+
 /** Erreur typée remontée aux composants : le formulaire lit `fields`. */
 export class ApiError extends Error {
   public readonly status: number;
@@ -88,7 +94,7 @@ export function createScore(input: CreateScoreInput) {
   return request<ScoreEntry>('/scores', { method: 'POST', body: JSON.stringify(input) });
 }
 
-export function getLeaderboard(game: string, metric: 'score' | 'time', signal?: AbortSignal) {
+export function getLeaderboard(game: string, metric: LeaderboardMetric, signal?: AbortSignal) {
   return request<{ data: LeaderboardRow[] }>(
     `/leaderboard?game=${encodeURIComponent(game)}&metric=${metric}`,
     { signal },

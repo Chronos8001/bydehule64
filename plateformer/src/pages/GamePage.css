@@ -4,6 +4,15 @@
 .platformer-player, .platformer-platform, .platformer-coin { position: absolute; box-sizing: border-box; }
 .platformer-overlay { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 16px; background: rgba(21, 17, 29, .7); color: #fff1bb; text-shadow: 3px 3px #422943; z-index: 40; }
 .platformer-overlay p { font: 900 clamp(24px, 5vw, 48px)/1 var(--heading); letter-spacing: .04em; }
+.platformer-overlay p.platformer-recap { font: 700 clamp(12px, 1.6vw, 18px)/1.4 var(--mono); letter-spacing: .08em; color: #e6d3a3; }
+.platformer-hud { width: 100%; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.platformer-hud .hud-item { padding: 6px 14px; background: #1d1a28; border: 3px solid #d4b26d; border-radius: 6px; color: #f4e7c3; font: 700 clamp(11px, 1.4vw, 15px)/1 var(--mono); letter-spacing: .1em; }
+.platformer-hud .hud-item b { color: #d4b26d; margin-right: 8px; }
+.platformer-form { display: grid; justify-items: center; gap: 10px; }
+.platformer-form label { color: #e6d3a3; font: 700 clamp(11px, 1.4vw, 15px)/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.platformer-form input { padding: 8px 12px; min-width: 240px; background: #100f17; border: 3px solid #d4b26d; border-radius: 4px; color: #f4e7c3; font: 700 16px/1 var(--mono); text-align: center; }
+.platformer-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.platformer-error { color: #ff8a7a; font: 700 clamp(11px, 1.3vw, 14px)/1.4 var(--mono) !important; letter-spacing: .04em; text-shadow: none; }
 .platformer-intro { position: absolute; inset: 0; z-index: 30; pointer-events: auto; background: rgba(0, 0, 0, .12); }
 .dialogue-box { position: absolute; left: 4%; right: 4%; bottom: 4%; z-index: 31; padding: 16px 18px 12px; background: rgba(0, 0, 0, .9); border: 3px solid #e1d1a5; border-radius: 8px; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .08), 0 0 22px rgba(0, 0, 0, .55); color: #f4e7c3; }
 .dialogue-box p { margin: 0; font: 700 clamp(16px, 2vw, 22px)/1.5 var(--body); letter-spacing: .02em; text-shadow: none; }

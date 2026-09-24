@@ -16,11 +16,16 @@ export const createScoreSchema = z.object({
     .trim()
     .min(2, 'Le nom du jeu doit faire au moins 2 caractères.')
     .max(40, 'Le nom du jeu ne peut pas dépasser 40 caractères.'),
-  score: z
-    .number({ invalid_type_error: 'Le score doit être un nombre.' })
-    .int('Le score doit être un entier.')
-    .min(0, 'Le score ne peut pas être négatif.')
-    .max(1_000_000, 'Score irréaliste.'),
+  coins: z
+    .number({ invalid_type_error: 'Le nombre de pièces doit être un nombre.' })
+    .int('Le nombre de pièces doit être un entier.')
+    .min(0, 'Le nombre de pièces ne peut pas être négatif.')
+    .max(10_000, 'Nombre de pièces irréaliste.'),
+  levels: z
+    .number({ invalid_type_error: 'Le nombre de niveaux doit être un nombre.' })
+    .int('Le nombre de niveaux doit être un entier.')
+    .min(0, 'Le nombre de niveaux ne peut pas être négatif.')
+    .max(1_000, 'Nombre de niveaux irréaliste.'),
   durationMs: z
     .number({ invalid_type_error: 'La durée doit être un nombre.' })
     .int('La durée doit être un entier de millisecondes.')
@@ -32,7 +37,7 @@ export const createScoreSchema = z.object({
 export const listScoresQuerySchema = z.object({
   game: z.string().trim().min(1).max(40).optional(),
   player: z.string().trim().min(1).max(20).optional(),
-  sort: z.enum(['score', 'time', 'date']).default('score'),
+  sort: z.enum(['score', 'time', 'date', 'coins', 'levels']).default('score'),
   order: z.enum(['asc', 'desc']).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   offset: z.coerce.number().int().min(0).default(0),
@@ -40,7 +45,7 @@ export const listScoresQuerySchema = z.object({
 
 export const leaderboardQuerySchema = z.object({
   game: z.string().trim().min(1).max(40),
-  metric: z.enum(['score', 'time']).default('score'),
+  metric: z.enum(['score', 'time', 'coins', 'levels']).default('score'),
   limit: z.coerce.number().int().min(1).max(50).default(10),
 });
 

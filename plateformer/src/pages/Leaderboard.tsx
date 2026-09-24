@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getLeaderboard, listGames } from '../services/api';
+import { getLeaderboard, listGames, type LeaderboardMetric } from '../services/api';
 import { useApiResource } from '../hooks/useApiResource';
-import type { SortKey } from '../types/api';
-
-type Metric = Extract<SortKey, 'score' | 'time'>;
 
 export function Leaderboard() {
   const [game, setGame] = useState<string>('');
-  const [metric, setMetric] = useState<Metric>('score');
+  const [metric, setMetric] = useState<LeaderboardMetric>('score');
 
   // Premier appel : la liste des jeux, pour remplir le <select>.
   const gamesState = useApiResource((signal) => listGames(signal), []);
@@ -60,9 +57,11 @@ export function Leaderboard() {
           <select
             id="metric-select"
             value={metric}
-            onChange={(event) => setMetric(event.target.value as Metric)}
+            onChange={(event) => setMetric(event.target.value as LeaderboardMetric)}
           >
             <option value="score">Meilleur score</option>
+            <option value="coins">Plus de pièces</option>
+            <option value="levels">Plus de niveaux</option>
             <option value="time">Temps le plus court</option>
           </select>
         </div>
@@ -88,6 +87,8 @@ export function Leaderboard() {
               <th>Rang</th>
               <th>Joueur</th>
               <th>Score</th>
+              <th>Pièces</th>
+              <th>Niveaux</th>
               <th>Temps</th>
             </tr>
           </thead>
@@ -97,6 +98,8 @@ export function Leaderboard() {
                 <td>{row.rank}</td>
                 <td>{row.player}</td>
                 <td>{row.score}</td>
+                <td>{row.coins}</td>
+                <td>{row.levels}</td>
                 <td>{(row.durationMs / 1000).toFixed(1)} s</td>
               </tr>
             ))}

@@ -22,9 +22,23 @@ const ORDER_BY: Record<SortKey, Record<SortOrder, string>> = {
     desc: 'created_at DESC',
     asc: 'created_at ASC',
   },
+  coins: {
+    desc: 'coins DESC, duration_ms ASC, created_at ASC',
+    asc: 'coins ASC, duration_ms DESC, created_at ASC',
+  },
+  levels: {
+    desc: 'levels DESC, coins DESC, duration_ms ASC',
+    asc: 'levels ASC, coins ASC, duration_ms DESC',
+  },
 };
 
-const DEFAULT_ORDER: Record<SortKey, SortOrder> = { score: 'desc', time: 'asc', date: 'desc' };
+const DEFAULT_ORDER: Record<SortKey, SortOrder> = {
+  score: 'desc',
+  time: 'asc',
+  date: 'desc',
+  coins: 'desc',
+  levels: 'desc',
+};
 
 /** GET /api/scores — liste filtrée, triée et paginée. */
 scoresRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
@@ -94,14 +108,17 @@ scoresRouter.post('/', writeRateLimit, (req: Request, res: Response, next: NextF
       id: randomUUID(),
       player: input.player,
       game: input.game,
-      score: input.score,
+      // Une pièce vaut 100 points, un niveau terminé 500.
+      score: input.coins * 100 + input.levels * 500,
+      coins: input.coins,
+      levels: input.levels,
       durationMs: input.durationMs,
       createdAt: new Date().toISOString(),
     };
 
     db.prepare(
-      `INSERT INTO scores (id, player, game, score, duration_ms, created_at)
-       VALUES (@id, @player, @game, @score, @durationMs, @createdAt)`,
+      `INSERT INTO scores (id, player, game, score, coins, levels, duration_ms, created_at)
+       VALUES (@id, @player, @game, @score, @coins, @levels, @durationMs, @createdAt)`,
     ).run(entry as unknown as Record<string, string | number>);
 
     res.status(201).location(`/api/scores/${entry.id}`).json(entry);
