@@ -57,11 +57,14 @@
 .dungeon-boss { position: absolute; z-index: 6; background: transparent; }
 .dungeon-boss .dungeon-enemy-image { filter: drop-shadow(0 0 12px rgba(204, 58, 58, .75)) saturate(1.4) hue-rotate(-25deg); }
 .dungeon-boss[data-hurt="true"] { animation: boss-blink .16s steps(2) infinite; }
+.dungeon-boss[data-phase="charge"] .dungeon-enemy-image { filter: drop-shadow(0 0 18px rgba(255, 138, 24, .95)) saturate(1.8) hue-rotate(-35deg); }
+.dungeon-fireball { position: absolute; z-index: 7; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #fff6c4 0 18%, #ffcf4a 34%, #ff7a18 62%, #c22d0e 100%); box-shadow: 0 0 12px 3px rgba(255, 122, 24, .75); animation: fireball-spin .3s steps(4) infinite; }
 .boss-health { position: absolute; z-index: 2; left: -12%; top: -115%; width: 124%; height: 12%; background: #2a1320; border: 2px solid #d4b26d; box-shadow: 0 2px 0 rgba(11, 11, 17, .6); }
 .boss-health span { display: block; height: 100%; background: linear-gradient(#ff7a6b, #c02b32); transition: width .18s ease-out; }
 @keyframes boss-blink { from { opacity: 1; } to { opacity: .35; } }
 @keyframes flame-flicker { from { transform: scaleX(1); } to { transform: scaleX(.86); } }
 @keyframes flame-warn { from { opacity: 1; } to { opacity: .5; } }
+@keyframes fireball-spin { from { transform: scale(1); } to { transform: scale(.82); } }
 .dungeon-enemy-image { position: absolute; left: -25%; top: -90%; width: 150%; height: auto; image-rendering: pixelated; pointer-events: none; }
 .skeleton-skull { position: absolute; z-index: 2; left: -24%; top: -112%; width: 148%; height: 128%; border-radius: 48% 48% 42% 42%; background: #f4e5bc; border: 2px solid #3a2b3c; box-shadow: inset -4px -4px #b4a28c, inset 4px 3px #fff4d0; }
 .skeleton-skull::before { content: ''; position: absolute; left: 12%; top: 34%; width: 76%; height: 30%; background: radial-gradient(ellipse at 25% 50%, #30243a 0 24%, transparent 25%), radial-gradient(ellipse at 75% 50%, #30243a 0 24%, transparent 25%); }

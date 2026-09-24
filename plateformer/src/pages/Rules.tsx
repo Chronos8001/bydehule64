@@ -39,6 +39,8 @@ export const Rules: React.FC = () => {
           <li>Les lances flammes s'activent par cycles, observez leur rythme pour passer sans danger.</li>
           <li>Observez bien les pièges et les ennemis pour anticiper leurs mouvements.</li>
           <li>Collectez les pièces pour augmenter votre score.</li>
+          <li>Le boss encaisse trois coups sur la tête et garde la porte fermée jusqu'à sa mort.</li>
+          <li>Il tire trois salves de boules de feu de chaque côté, puis une gerbe en arc de cercle.</li>
           <li>Évitez de mourir pour ne pas perdre votre progression dans le niveau.</li>
         </ul>
       </div>

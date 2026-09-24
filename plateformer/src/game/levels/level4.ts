@@ -9,12 +9,12 @@ export const level4 = (): World => ({
   platforms: [
     { position: { x: 0, y: 430 }, size: { width: 1200, height: 50 } },
     { position: { x: 180, y: 320 }, size: { width: 130, height: 20 } },
-    { position: { x: 520, y: 270 }, size: { width: 160, height: 20 } },
+    { position: { x: 430, y: 270 }, size: { width: 160, height: 20 } },
     { position: { x: 890, y: 320 }, size: { width: 130, height: 20 } },
   ],
   coins: [
     { position: { x: 230, y: 275 }, collected: false },
-    { position: { x: 590, y: 225 }, collected: false },
+    { position: { x: 500, y: 225 }, collected: false },
     { position: { x: 940, y: 275 }, collected: false },
     { position: { x: 600, y: 390 }, collected: false },
   ],
@@ -31,7 +31,11 @@ export const level4 = (): World => ({
     hitPoints: 3,
     maxHitPoints: 3,
     invulnerableSteps: 0,
+    phase: 'volley',
+    phaseTimer: 0,
+    shotsFired: 0,
   },
+  projectiles: [],
   exit: { position: { x: 1140, y: 330 }, size: { width: 40, height: 100 } },
   pressedKeys: {},
 });

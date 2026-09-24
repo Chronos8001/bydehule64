@@ -51,7 +51,18 @@ export interface Flamethrower {
   timer: number;
 }
 
-/** Ennemi de fin de niveau : plusieurs coups à encaisser, et il verrouille la sortie. */export interface Boss {
+/** Boule de feu crachée par le boss : trajectoire rectiligne, mortelle au contact. */
+export interface Projectile {
+  position: Position;
+  velocity: Position;
+  size: number;
+}
+
+/** Cycle d'attaque : trois salves latérales en marchant, puis il se fige pour la gerbe en arc. */
+export type BossPhase = 'volley' | 'charge' | 'burst' | 'recover';
+
+/** Ennemi de fin de niveau : plusieurs coups à encaisser, et il verrouille la sortie. */
+export interface Boss {
   position: Position;
   size: number;
   direction: -1 | 1;
@@ -61,6 +72,11 @@ export interface Flamethrower {
   maxHitPoints: number;
   /** Pas de simulation restants pendant lesquels le boss ne peut ni blesser ni être blessé. */
   invulnerableSteps: number;
+  phase: BossPhase;
+  /** Pas écoulés depuis le début de la phase courante. */
+  phaseTimer: number;
+  /** Salves déjà tirées dans la phase `volley`. */
+  shotsFired: number;
 }
 
 export interface World {
@@ -76,6 +92,8 @@ export interface World {
   exit: Zone;
   /** Présent uniquement dans une chambre de boss : la sortie reste fermée tant qu'il vit. */
   boss?: Boss;
+  /** Boules de feu en vol. */
+  projectiles?: Projectile[];
   pressedKeys: Record<string, boolean>;
   /** Temps non encore simulé, reporté d'une frame à l'autre par le pas fixe. */
   accumulator?: number;

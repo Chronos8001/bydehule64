@@ -30,9 +30,9 @@ export const level3 = (): World => ({
     { position: { x: 900, y: 320 }, size: { width: 110, height: 20 } },
     { position: { x: 1130, y: 270 }, size: { width: 120, height: 20 } },
     { position: { x: 1360, y: 215 }, size: { width: 110, height: 20 } },
-    { position: { x: 1620, y: 280 }, size: { width: 120, height: 20 } },
+    { position: { x: 1620, y: 320 }, size: { width: 120, height: 20 } },
     { position: { x: 1880, y: 225 }, size: { width: 110, height: 20 } },
-    { position: { x: 2120, y: 300 }, size: { width: 120, height: 20 } },
+    { position: { x: 2120, y: 320 }, size: { width: 120, height: 20 } },
     { position: { x: 2300, y: 230 }, size: { width: 100, height: 20 } },
   ],
   coins: [
@@ -42,9 +42,9 @@ export const level3 = (): World => ({
     { position: { x: 940, y: 280 }, collected: false },
     { position: { x: 1175, y: 230 }, collected: false },
     { position: { x: 1400, y: 175 }, collected: false },
-    { position: { x: 1665, y: 240 }, collected: false },
+    { position: { x: 1665, y: 282 }, collected: false },
     { position: { x: 1920, y: 185 }, collected: false },
-    { position: { x: 2165, y: 260 }, collected: false },
+    { position: { x: 2165, y: 282 }, collected: false },
     { position: { x: 2335, y: 190 }, collected: false },
   ],
   spikes: [
@@ -55,7 +55,7 @@ export const level3 = (): World => ({
     // Premier contact avec le piège : cycle lent, largement le temps de passer.
     { position: { x: 940, y: 290 }, size: { width: 34, height: 140 }, direction: 'up', activeSteps: 60, idleSteps: 150, timer: 0 },
     { position: { x: 1470, y: 290 }, size: { width: 34, height: 140 }, direction: 'up', activeSteps: 90, idleSteps: 120, timer: 105 },
-    { position: { x: 2170, y: 0 }, size: { width: 34, height: 280 }, direction: 'down', activeSteps: 60, idleSteps: 90, timer: 30 },
+    { position: { x: 2170, y: 0 }, size: { width: 34, height: 310 }, direction: 'down', activeSteps: 60, idleSteps: 90, timer: 30 },
   ],
   exit: { position: { x: 2345, y: 330 }, size: { width: 40, height: 100 } },
   pressedKeys: {},

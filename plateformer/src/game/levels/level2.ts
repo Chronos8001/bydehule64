@@ -25,7 +25,7 @@ export const level2 = (): World => ({
     { position: { x: 900, y: 330 }, size: { width: 100, height: 20 } },
     { position: { x: 1120, y: 280 }, size: { width: 130, height: 20 } },
     { position: { x: 1380, y: 230 }, size: { width: 120, height: 20 } },
-    { position: { x: 1600, y: 300 }, size: { width: 130, height: 20 } },
+    { position: { x: 1600, y: 320 }, size: { width: 130, height: 20 } },
   ],
   coins: [
     { position: { x: 215, y: 300 }, collected: false },
@@ -34,7 +34,7 @@ export const level2 = (): World => ({
     { position: { x: 930, y: 290 }, collected: false },
     { position: { x: 1160, y: 240 }, collected: false },
     { position: { x: 1420, y: 190 }, collected: false },
-    { position: { x: 1640, y: 260 }, collected: false },
+    { position: { x: 1640, y: 282 }, collected: false },
     { position: { x: 1050, y: 392 }, collected: false },
   ],
   spikes: [
