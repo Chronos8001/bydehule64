@@ -10,9 +10,17 @@ declare module 'react-game-engine' {
     type: string;
   }
 
+  interface EngineTime {
+    current: number;
+    previous: number | null;
+    /** Millisecondes écoulées depuis la frame précédente. */
+    delta: number;
+    previousDelta: number | null;
+  }
+
   interface GameEngineProps<Entities, Event extends EngineEvent> {
     entities: Entities;
-    systems: ReadonlyArray<(entities: Entities, context: { input: readonly InputEvent[]; dispatch: (event: Event) => void }) => Entities>;
+    systems: ReadonlyArray<(entities: Entities, context: { input: readonly InputEvent[]; time: EngineTime; dispatch: (event: Event) => void }) => Entities>;
     onEvent?: (event: Event) => void;
     running?: boolean;
     className?: string;

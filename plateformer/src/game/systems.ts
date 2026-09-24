@@ -6,6 +6,13 @@ const FALL_GRAVITY = 0.25;
 const MOVE_SPEED = 3;
 const JUMP_SPEED = -11;
 
+// Pas de simulation fixe : le jeu avance à la même vitesse en 60 Hz comme en 144 Hz.
+const STEP_MS = 1000 / 60;
+const MAX_STEPS_PER_FRAME = 5;
+
+type Dispatch = (event: GameEvent) => void;
+type GameWorld = EngineEntities['world'];
+
 const overlaps = (first: Position, firstSize: number, second: Position, secondSize: number) =>
   first.x < second.x + secondSize && first.x + firstSize > second.x &&
   first.y < second.y + secondSize && first.y + firstSize > second.y;
@@ -14,10 +21,72 @@ const touches = (position: Position, size: number, zone: Zone) =>
   position.x < zone.position.x + zone.size.width && position.x + size > zone.position.x &&
   position.y < zone.position.y + zone.size.height && position.y + size > zone.position.y;
 
+const step = (world: GameWorld, jumpPressed: boolean, dispatch: Dispatch): GameWorld => {
+  const player = world.player;
+  const pressedKeys = world.pressedKeys;
+
+  const velocityX = pressedKeys.arrowleft || pressedKeys.a ? -MOVE_SPEED : pressedKeys.arrowright || pressedKeys.d ? MOVE_SPEED : 0;
+  const velocityY = jumpPressed && player.onGround ? JUMP_SPEED : player.velocity.y + (player.velocity.y > 0 ? FALL_GRAVITY : GRAVITY);
+  let position = { x: Math.max(0, Math.min(world.width - player.size, player.position.x + velocityX)), y: player.position.y + velocityY };
+  let onGround = false;
+
+  world.platforms.forEach((platform) => {
+    const landedOnPlatform = velocityY >= 0 && player.position.y + player.size <= platform.position.y + 8 && position.y + player.size >= platform.position.y && position.x + player.size > platform.position.x && position.x < platform.position.x + platform.size.width;
+    if (landedOnPlatform) {
+      position = { ...position, y: platform.position.y - player.size };
+      onGround = true;
+    }
+  });
+
+  const enemies = world.enemies.map((enemy) => {
+    const nextX = enemy.position.x + enemy.direction * enemy.speed;
+    const reachedPatrolEdge = nextX <= enemy.patrol.minX || nextX >= enemy.patrol.maxX;
+    const direction = reachedPatrolEdge ? (enemy.direction * -1) as -1 | 1 : enemy.direction;
+    return { ...enemy, position: { ...enemy.position, x: Math.max(enemy.patrol.minX, Math.min(enemy.patrol.maxX, nextX)) }, direction };
+  });
+
+  const stompedEnemy = velocityY > 0
+    ? enemies.find((enemy) => player.position.y + player.size <= enemy.position.y + 6 && position.y + player.size >= enemy.position.y && position.x + player.size > enemy.position.x && position.x < enemy.position.x + enemy.size)
+    : undefined;
+
+  const remainingEnemies = stompedEnemy ? enemies.filter((enemy) => enemy !== stompedEnemy) : enemies;
+  const bouncedOnEnemy = stompedEnemy !== undefined;
+  if (stompedEnemy) position = { ...position, y: stompedEnemy.position.y - player.size };
+
+  const hitEnemy = remainingEnemies.some((enemy) => overlaps(position, player.size, enemy.position, enemy.size));
+  const coins = world.coins.map((coin) => ({ ...coin, collected: coin.collected || overlaps(position, player.size, coin.position, 18) }));
+
+  const pickedUp = coins.filter((coin, index) => coin.collected && !world.coins[index]!.collected).length;
+  for (let i = 0; i < pickedUp; i += 1) dispatch({ type: 'coin' });
+
+  const hitSpike = world.spikes.some((spike) => touches(position, player.size, spike));
+
+  if (touches(position, player.size, world.exit)) dispatch({ type: 'win' });
+  if (hitEnemy || hitSpike || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
+
+  return {
+    ...world,
+    player: {
+      ...player,
+      position,
+      velocity: { x: velocityX, y: bouncedOnEnemy ? JUMP_SPEED * 0.65 : onGround ? 0 : velocityY },
+      onGround: bouncedOnEnemy ? false : onGround,
+    },
+    enemies: remainingEnemies,
+    coins,
+  };
+};
+
 export const gameSystems = [
-  (entities: EngineEntities, { input, dispatch }: { input: readonly { name: string; payload?: { key?: string } }[]; dispatch: (event: GameEvent) => void }) => {
+  (
+    entities: EngineEntities,
+    { input, time, dispatch }: {
+      input: readonly { name: string; payload?: { key?: string } }[];
+      time: { delta: number };
+      dispatch: Dispatch;
+    },
+  ) => {
     const world = entities.world;
-    const player = world.player;
     const pressedKeys = { ...world.pressedKeys };
     let jumpPressed = false;
 
@@ -31,60 +100,18 @@ export const gameSystems = [
       if (event.name === 'onKeyUp') pressedKeys[key] = false;
     });
 
-    const velocityX = pressedKeys.arrowleft || pressedKeys.a ? -MOVE_SPEED : pressedKeys.arrowright || pressedKeys.d ? MOVE_SPEED : 0;
-    const velocityY = jumpPressed && player.onGround ? JUMP_SPEED : player.velocity.y + (player.velocity.y > 0 ? FALL_GRAVITY : GRAVITY);
-    let position = { x: Math.max(0, Math.min(world.width - player.size, player.position.x + velocityX)), y: player.position.y + velocityY };
-    let onGround = false;
+    // Une frame trop longue (onglet en arrière-plan) ne doit pas téléporter le joueur.
+    let remaining = Math.min((world.accumulator ?? 0) + time.delta, STEP_MS * MAX_STEPS_PER_FRAME);
+    let next: GameWorld = { ...world, pressedKeys };
+    let jumpPending = world.jumpPending || jumpPressed;
 
-    world.platforms.forEach((platform) => {
-      const landedOnPlatform = velocityY >= 0 && player.position.y + player.size <= platform.position.y + 8 && position.y + player.size >= platform.position.y && position.x + player.size > platform.position.x && position.x < platform.position.x + platform.size.width;
-      if (landedOnPlatform) {
-        position = { ...position, y: platform.position.y - player.size };
-        onGround = true;
-      }
-    });
+    while (remaining >= STEP_MS) {
+      next = step(next, jumpPending, dispatch);
+      jumpPending = false;
+      remaining -= STEP_MS;
+    }
 
-    const enemies = world.enemies.map((enemy) => {
-      const nextX = enemy.position.x + enemy.direction * enemy.speed;
-      const reachedPatrolEdge = nextX <= enemy.patrol.minX || nextX >= enemy.patrol.maxX;
-      const direction = reachedPatrolEdge ? (enemy.direction * -1) as -1 | 1 : enemy.direction;
-      return { ...enemy, position: { ...enemy.position, x: Math.max(enemy.patrol.minX, Math.min(enemy.patrol.maxX, nextX)) }, direction };
-    });
-
-    const stompedEnemy = velocityY > 0
-      ? enemies.find((enemy) => player.position.y + player.size <= enemy.position.y + 6 && position.y + player.size >= enemy.position.y && position.x + player.size > enemy.position.x && position.x < enemy.position.x + enemy.size)
-      : undefined;
-
-    const remainingEnemies = stompedEnemy ? enemies.filter((enemy) => enemy !== stompedEnemy) : enemies;
-    const bouncedOnEnemy = stompedEnemy !== undefined;
-    if (stompedEnemy) position = { ...position, y: stompedEnemy.position.y - player.size };
-
-    const hitEnemy = remainingEnemies.some((enemy) => overlaps(position, player.size, enemy.position, enemy.size));
-    const coins = world.coins.map((coin) => ({ ...coin, collected: coin.collected || overlaps(position, player.size, coin.position, 18) }));
-
-    const pickedUp = coins.filter((coin, index) => coin.collected && !world.coins[index]!.collected).length;
-    for (let i = 0; i < pickedUp; i += 1) dispatch({ type: 'coin' });
-
-    const hitSpike = world.spikes.some((spike) => touches(position, player.size, spike));
-
-    if (touches(position, player.size, world.exit)) dispatch({ type: 'win' });
-    if (hitEnemy || hitSpike || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
-
-    return {
-      ...entities,
-      world: {
-        ...world,
-        player: {
-          ...player,
-          position,
-          velocity: { x: velocityX, y: bouncedOnEnemy ? JUMP_SPEED * 0.65 : onGround ? 0 : velocityY },
-          onGround: bouncedOnEnemy ? false : onGround,
-        },
-        enemies: remainingEnemies,
-        coins,
-        pressedKeys,
-      },
-    };
+    return { ...entities, world: { ...next, accumulator: remaining, jumpPending } };
   },
 ] as const;
 

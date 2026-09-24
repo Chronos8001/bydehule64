@@ -48,6 +48,10 @@ export interface World {
   spikes: Zone[];
   exit: Zone;
   pressedKeys: Record<string, boolean>;
+  /** Temps non encore simulé, reporté d'une frame à l'autre par le pas fixe. */
+  accumulator?: number;
+  /** Appui sur saut reçu entre deux pas : il attend le prochain pas pour s'appliquer. */
+  jumpPending?: boolean;
 }
 
 export interface GameEvent {
