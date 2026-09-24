@@ -14,8 +14,8 @@ export const LevelSelect: React.FC = () => {
       <div className="panel-section">
         <h2>Sélection de niveau</h2>
         <p>
-          Démarre directement au niveau choisi, sans l'introduction. Les pièces et le chrono
-          repartent de zéro : les scores envoyés depuis ce mode ne reflètent pas une partie complète.
+          Démarre directement au niveau choisi, dialogue d'introduction compris. Les pièces et le
+          chrono repartent de zéro : les scores envoyés depuis ce mode ne reflètent pas une partie complète.
         </p>
       </div>
 

@@ -23,12 +23,12 @@ export const GamePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // `?level=3` : entrée directe depuis le Dev Mode, dialogues sautés.
+  // `?level=3` : entrée directe depuis le Dev Mode.
   const requested = Number(searchParams.get('level'));
   const devStart = Number.isInteger(requested) && requested >= 1 && requested <= levels.length;
   const startIndex = devStart ? requested - 1 : 0;
 
-  const [status, setStatus] = useState<GameStatus>(!devStart && dialogueFor(0).length > 0 ? 'intro' : 'playing');
+  const [status, setStatus] = useState<GameStatus>(dialogueFor(startIndex).length > 0 ? 'intro' : 'playing');
   const [runId, setRunId] = useState(0);
   const [introIndex, setIntroIndex] = useState(0);
   const [levelIndex, setLevelIndex] = useState(startIndex);
@@ -55,7 +55,7 @@ export const GamePage: React.FC = () => {
     return () => window.clearInterval(intervalId);
   }, [status]);
 
-  const dialogue = devStart ? [] : dialogueFor(levelIndex);
+  const dialogue = dialogueFor(levelIndex);
 
   const advanceIntro = useCallback(() => {
     const nextIndex = introIndex + 1;
@@ -72,9 +72,9 @@ export const GamePage: React.FC = () => {
     const next = levelIndex + 1;
     setLevelIndex(next);
     setIntroIndex(0);
-    setStatus(!devStart && dialogueFor(next).length > 0 ? 'intro' : 'playing');
+    setStatus(dialogueFor(next).length > 0 ? 'intro' : 'playing');
     setRunId((run) => run + 1);
-  }, [devStart, levelIndex]);
+  }, [levelIndex]);
 
   /** Nouvelle partie : tous les compteurs repartent de zéro. */
   const newGame = useCallback(() => {
@@ -86,9 +86,9 @@ export const GamePage: React.FC = () => {
     setSubmitState('idle');
     setSubmitError(null);
     setIntroIndex(0);
-    setStatus(!devStart && dialogueFor(startIndex).length > 0 ? 'intro' : 'playing');
+    setStatus(dialogueFor(startIndex).length > 0 ? 'intro' : 'playing');
     setRunId((run) => run + 1);
-  }, [devStart, startIndex]);
+  }, [startIndex]);
 
   const handleEvent = useCallback((event: GameEvent) => {
     if (statusRef.current !== 'playing') return;

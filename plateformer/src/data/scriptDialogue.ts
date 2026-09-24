@@ -56,6 +56,7 @@ export const levelDialogues: Record<number, DialogueLine[]> = {
     boss('you died'),
     'yes but... i am not supposed to be here then',
     'and everything is so... vertical.',
+    'why everything is so weird?',
     boss('that is the effect of Chtululus magic'),
     'what do you mean?',
     boss('you will have to understand it for yourself.'),
