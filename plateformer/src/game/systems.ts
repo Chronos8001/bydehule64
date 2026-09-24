@@ -1,5 +1,5 @@
-import type { EngineEntities, GameEvent, Position } from './types';
-import { PLAYER_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from './level1';
+import type { EngineEntities, GameEvent, Position, Zone } from './types';
+import { PLAYER_SIZE, WORLD_HEIGHT } from './constants';
 
 const GRAVITY = 0.5;
 const FALL_GRAVITY = 0.25;
@@ -9,6 +9,10 @@ const JUMP_SPEED = -11;
 const overlaps = (first: Position, firstSize: number, second: Position, secondSize: number) =>
   first.x < second.x + secondSize && first.x + firstSize > second.x &&
   first.y < second.y + secondSize && first.y + firstSize > second.y;
+
+const touches = (position: Position, size: number, zone: Zone) =>
+  position.x < zone.position.x + zone.size.width && position.x + size > zone.position.x &&
+  position.y < zone.position.y + zone.size.height && position.y + size > zone.position.y;
 
 export const gameSystems = [
   (entities: EngineEntities, { input, dispatch }: { input: readonly { name: string; payload?: { key?: string } }[]; dispatch: (event: GameEvent) => void }) => {
@@ -29,7 +33,7 @@ export const gameSystems = [
 
     const velocityX = pressedKeys.arrowleft || pressedKeys.a ? -MOVE_SPEED : pressedKeys.arrowright || pressedKeys.d ? MOVE_SPEED : 0;
     const velocityY = jumpPressed && player.onGround ? JUMP_SPEED : player.velocity.y + (player.velocity.y > 0 ? FALL_GRAVITY : GRAVITY);
-    let position = { x: Math.max(0, Math.min(WORLD_WIDTH - player.size, player.position.x + velocityX)), y: player.position.y + velocityY };
+    let position = { x: Math.max(0, Math.min(world.width - player.size, player.position.x + velocityX)), y: player.position.y + velocityY };
     let onGround = false;
 
     world.platforms.forEach((platform) => {
@@ -61,8 +65,10 @@ export const gameSystems = [
     const pickedUp = coins.filter((coin, index) => coin.collected && !world.coins[index]!.collected).length;
     for (let i = 0; i < pickedUp; i += 1) dispatch({ type: 'coin' });
 
-    if (coins.every((coin) => coin.collected)) dispatch({ type: 'win' });
-    if (hitEnemy || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
+    const hitSpike = world.spikes.some((spike) => touches(position, player.size, spike));
+
+    if (touches(position, player.size, world.exit)) dispatch({ type: 'win' });
+    if (hitEnemy || hitSpike || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
 
     return {
       ...entities,

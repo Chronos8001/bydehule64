@@ -1,0 +1,64 @@
+import skel from '../../skel.png';
+import protagonist from '../../protagoniste.png';
+import { WORLD_HEIGHT, WORLD_WIDTH } from './constants';
+import type { World } from './types';
+
+export const WorldSprite = (world: World) => {
+  const camera = Math.max(
+    0,
+    Math.min(world.width - WORLD_WIDTH, world.player.position.x + world.player.size / 2 - WORLD_WIDTH / 2),
+  );
+  const percentX = (value: number) => `${(value / world.width) * 100}%`;
+  const percentY = (value: number) => `${(value / WORLD_HEIGHT) * 100}%`;
+
+  return (
+    <div className="platformer-world" aria-hidden="true">
+      <div className="dungeon-backdrop">
+        <div className="dungeon-moon" />
+        <div className="dungeon-arch arch-left" />
+        <div className="dungeon-arch arch-center" />
+        <div className="dungeon-arch arch-right" />
+        <div className="dungeon-banner">Dungeon of Byd'Hule : the Underdark</div>
+        <div className="dungeon-pillar pillar-left" />
+        <div className="dungeon-pillar pillar-right" />
+      </div>
+
+      <div
+        className="platformer-scroll"
+        style={{ width: `${(world.width / WORLD_WIDTH) * 100}%`, transform: `translateX(-${(camera / world.width) * 100}%)` }}
+      >
+        {world.platforms.map((platform, index) => (
+          <div
+            className={`platformer-platform dungeon-platform platform-${index}`}
+            key={`${platform.position.x}-${platform.position.y}`}
+            style={{ left: percentX(platform.position.x), top: percentY(platform.position.y), width: percentX(platform.size.width), height: percentY(platform.size.height) }}
+          >
+            <span />
+          </div>
+        ))}
+        {world.spikes.map((spike) => (
+          <div
+            className="dungeon-spike"
+            key={`${spike.position.x}-${spike.position.y}`}
+            style={{ left: percentX(spike.position.x), top: percentY(spike.position.y), width: percentX(spike.size.width), height: percentY(spike.size.height) }}
+          />
+        ))}
+        <div
+          className="dungeon-exit"
+          style={{ left: percentX(world.exit.position.x), top: percentY(world.exit.position.y), width: percentX(world.exit.size.width), height: percentY(world.exit.size.height) }}
+        >
+          <span />
+        </div>
+        {world.coins.filter((coin) => !coin.collected).map((coin) => (
+          <div className="dungeon-coin" key={`${coin.position.x}-${coin.position.y}`} style={{ left: percentX(coin.position.x), top: percentY(coin.position.y), width: percentX(22) }}><span>$</span></div>
+        ))}
+        {world.enemies.map((enemy) => (
+          <div className="dungeon-skeleton" key={`${enemy.patrol.minX}-${enemy.position.y}`} style={{ left: percentX(enemy.position.x), top: percentY(enemy.position.y), width: percentX(enemy.size), height: percentY(enemy.size) }}><img className="dungeon-enemy-image" src={skel} alt="" /></div>
+        ))}
+        <div className="dungeon-hero" style={{ left: percentX(world.player.position.x), top: percentY(world.player.position.y), width: percentX(world.player.size), height: percentY(world.player.size) }}><img className="dungeon-hero-image" src={protagonist} alt="" /></div>
+      </div>
+
+      <div className="dungeon-vignette" />
+    </div>
+  );
+};

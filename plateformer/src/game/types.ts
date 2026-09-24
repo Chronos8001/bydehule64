@@ -32,11 +32,21 @@ export interface Collectible {
   collected: boolean;
 }
 
+/** Zone rectangulaire : pics mortels ou porte de sortie. */
+export interface Zone {
+  position: Position;
+  size: { width: number; height: number };
+}
+
 export interface World {
+  /** Largeur du niveau en unités monde ; au-delà de la vue, la caméra suit le joueur. */
+  width: number;
   player: Player;
   enemies: Enemy[];
   platforms: Platform[];
   coins: Collectible[];
+  spikes: Zone[];
+  exit: Zone;
   pressedKeys: Record<string, boolean>;
 }
 
