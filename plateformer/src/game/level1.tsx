@@ -1,4 +1,4 @@
-import sansUndertale from '../../Sansundertale.webp';
+import skel from '../../skel.png';
 import protagonist from '../../protagoniste.png';
 import type { World } from './types';
 
@@ -52,7 +52,7 @@ export const WorldSprite = (world: World) => (
       <div className="dungeon-coin" key={`${coin.position.x}-${coin.position.y}`} style={{ left: `${(coin.position.x / WORLD_WIDTH) * 100}%`, top: `${(coin.position.y / WORLD_HEIGHT) * 100}%` }}><span>$</span></div>
     ))}
     {world.enemies.map((enemy) => (
-      <div className="dungeon-skeleton" key={`${enemy.position.x}-${enemy.position.y}`} style={{ left: `${(enemy.position.x / WORLD_WIDTH) * 100}%`, top: `${(enemy.position.y / WORLD_HEIGHT) * 100}%`, width: `${(enemy.size / WORLD_WIDTH) * 100}%`, height: `${(enemy.size / WORLD_HEIGHT) * 100}%` }}><img className="dungeon-enemy-image" src={sansUndertale} alt="" /></div>
+      <div className="dungeon-skeleton" key={`${enemy.position.x}-${enemy.position.y}`} style={{ left: `${(enemy.position.x / WORLD_WIDTH) * 100}%`, top: `${(enemy.position.y / WORLD_HEIGHT) * 100}%`, width: `${(enemy.size / WORLD_WIDTH) * 100}%`, height: `${(enemy.size / WORLD_HEIGHT) * 100}%` }}><img className="dungeon-enemy-image" src={skel} alt="" /></div>
     ))}
     <div className="dungeon-hero" style={{ left: `${(world.player.position.x / WORLD_WIDTH) * 100}%`, top: `${(world.player.position.y / WORLD_HEIGHT) * 100}%`, width: `${(world.player.size / WORLD_WIDTH) * 100}%`, height: `${(world.player.size / WORLD_HEIGHT) * 100}%` }}><img className="dungeon-hero-image" src={protagonist} alt="" /></div>
     <div className="dungeon-vignette" />
