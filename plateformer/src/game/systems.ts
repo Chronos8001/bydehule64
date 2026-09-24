@@ -10,6 +10,9 @@ const JUMP_SPEED = -11;
 const STEP_MS = 1000 / 60;
 const MAX_STEPS_PER_FRAME = 5;
 
+// Une seconde de répit après chaque coup porté au boss.
+const BOSS_INVULNERABLE_STEPS = 60;
+
 type Dispatch = (event: GameEvent) => void;
 type GameWorld = EngineEntities['world'];
 
@@ -50,8 +53,34 @@ const step = (world: GameWorld, jumpPressed: boolean, dispatch: Dispatch): GameW
     : undefined;
 
   const remainingEnemies = stompedEnemy ? enemies.filter((enemy) => enemy !== stompedEnemy) : enemies;
-  const bouncedOnEnemy = stompedEnemy !== undefined;
   if (stompedEnemy) position = { ...position, y: stompedEnemy.position.y - player.size };
+
+  let boss = world.boss;
+  let stompedBoss = false;
+  if (boss) {
+    const nextX = boss.position.x + boss.direction * boss.speed;
+    const reachedPatrolEdge = nextX <= boss.patrol.minX || nextX >= boss.patrol.maxX;
+    boss = {
+      ...boss,
+      position: { ...boss.position, x: Math.max(boss.patrol.minX, Math.min(boss.patrol.maxX, nextX)) },
+      direction: reachedPatrolEdge ? (boss.direction * -1) as -1 | 1 : boss.direction,
+      invulnerableSteps: Math.max(0, boss.invulnerableSteps - 1),
+    };
+
+    const landedOnHead = velocityY > 0 && boss.invulnerableSteps === 0
+      && player.position.y + player.size <= boss.position.y + 10 && position.y + player.size >= boss.position.y
+      && position.x + player.size > boss.position.x && position.x < boss.position.x + boss.size;
+
+    if (landedOnHead) {
+      position = { ...position, y: boss.position.y - player.size };
+      boss = { ...boss, hitPoints: boss.hitPoints - 1, invulnerableSteps: BOSS_INVULNERABLE_STEPS };
+      stompedBoss = true;
+    }
+    if (boss.hitPoints <= 0) boss = undefined;
+  }
+
+  const bouncedOnEnemy = stompedEnemy !== undefined || stompedBoss;
+  const hitBoss = boss !== undefined && boss.invulnerableSteps === 0 && overlaps(position, player.size, boss.position, boss.size);
 
   const hitEnemy = remainingEnemies.some((enemy) => overlaps(position, player.size, enemy.position, enemy.size));
   const coins = world.coins.map((coin) => ({ ...coin, collected: coin.collected || overlaps(position, player.size, coin.position, 18) }));
@@ -61,8 +90,8 @@ const step = (world: GameWorld, jumpPressed: boolean, dispatch: Dispatch): GameW
 
   const hitSpike = world.spikes.some((spike) => touches(position, player.size, spike));
 
-  if (touches(position, player.size, world.exit)) dispatch({ type: 'win' });
-  if (hitEnemy || hitSpike || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
+  if (!boss && touches(position, player.size, world.exit)) dispatch({ type: 'win' });
+  if (hitEnemy || hitBoss || hitSpike || position.y > WORLD_HEIGHT) dispatch({ type: 'lose' });
 
   return {
     ...world,
@@ -74,6 +103,7 @@ const step = (world: GameWorld, jumpPressed: boolean, dispatch: Dispatch): GameW
     },
     enemies: remainingEnemies,
     coins,
+    boss,
   };
 };
 

@@ -45,6 +45,7 @@ export const WorldSprite = (world: World) => {
         ))}
         <div
           className="dungeon-exit"
+          data-locked={world.boss !== undefined}
           style={{ left: percentX(world.exit.position.x), top: percentY(world.exit.position.y), width: percentX(world.exit.size.width), height: percentY(world.exit.size.height) }}
         >
           <span />
@@ -55,6 +56,16 @@ export const WorldSprite = (world: World) => {
         {world.enemies.map((enemy) => (
           <div className="dungeon-skeleton" key={`${enemy.patrol.minX}-${enemy.position.y}`} style={{ left: percentX(enemy.position.x), top: percentY(enemy.position.y), width: percentX(enemy.size), height: percentY(enemy.size) }}><img className="dungeon-enemy-image" src={skel} alt="" /></div>
         ))}
+        {world.boss && (
+          <div
+            className="dungeon-boss"
+            data-hurt={world.boss.invulnerableSteps > 0}
+            style={{ left: percentX(world.boss.position.x), top: percentY(world.boss.position.y), width: percentX(world.boss.size), height: percentY(world.boss.size) }}
+          >
+            <div className="boss-health"><span style={{ width: `${(world.boss.hitPoints / world.boss.maxHitPoints) * 100}%` }} /></div>
+            <img className="dungeon-enemy-image" src={skel} alt="" />
+          </div>
+        )}
         <div className="dungeon-hero" style={{ left: percentX(world.player.position.x), top: percentY(world.player.position.y), width: percentX(world.player.size), height: percentY(world.player.size) }}><img className="dungeon-hero-image" src={protagonist} alt="" /></div>
       </div>
 

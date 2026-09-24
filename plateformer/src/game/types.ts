@@ -38,6 +38,19 @@ export interface Zone {
   size: { width: number; height: number };
 }
 
+/** Ennemi de fin de niveau : plusieurs coups à encaisser, et il verrouille la sortie. */
+export interface Boss {
+  position: Position;
+  size: number;
+  direction: -1 | 1;
+  speed: number;
+  patrol: { minX: number; maxX: number };
+  hitPoints: number;
+  maxHitPoints: number;
+  /** Pas de simulation restants pendant lesquels le boss ne peut ni blesser ni être blessé. */
+  invulnerableSteps: number;
+}
+
 export interface World {
   /** Largeur du niveau en unités monde ; au-delà de la vue, la caméra suit le joueur. */
   width: number;
@@ -47,6 +60,8 @@ export interface World {
   coins: Collectible[];
   spikes: Zone[];
   exit: Zone;
+  /** Présent uniquement dans une chambre de boss : la sortie reste fermée tant qu'il vit. */
+  boss?: Boss;
   pressedKeys: Record<string, boolean>;
   /** Temps non encore simulé, reporté d'une frame à l'autre par le pas fixe. */
   accumulator?: number;

@@ -1,13 +1,61 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import './Panel.css';
+
+const CONTROLS = [
+  { keys: ['←', '→'], alt: ['A', 'D'], label: 'Se déplacer' },
+  { keys: ['↑'], alt: ['W', 'Espace'], label: 'Sauter' },
+  { keys: ['Entrée'], alt: [], label: 'Passer les dialogues' },
+];
+
 export const Rules: React.FC = () => {
   const navigate = useNavigate();
+
   return (
-    <div className="flex flex-col items-center space-y-4">
-      <h2 className="text-2xl text-amber-400">HOW TO PLAY</h2>
-      <p className="text-sm">Use arrows to move, space to jump.</p>
-      <Button variant="secondary" onClick={() => navigate('/')}>BACK</Button>
-    </div>
+    <section className="panel-screen">
+      <h1 className="panel-title">Options</h1>
+
+      <div className="panel-section">
+        <h2>Commandes</h2>
+        {CONTROLS.map((control) => (
+          <div className="control-row" key={control.label}>
+            <span className="control-keys">
+              {[...control.keys, ...control.alt].map((key) => (
+                <kbd key={key}>{key}</kbd>
+              ))}
+            </span>
+            <span className="control-label">{control.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="panel-section">
+        <h2>Objectif</h2>
+        <ul className="panel-list">
+          <li>Atteindre la porte tout à droite pour terminer un niveau.</li>
+          <li>Les squelettes s'éliminent en leur sautant sur la tête.</li>
+          <li>Les pics et une chute dans le vide sont mortels.</li>
+          <li>Le boss du dernier niveau encaisse trois coups et verrouille la porte.</li>
+        </ul>
+      </div>
+
+      <div className="panel-section">
+        <h2>Score</h2>
+        <ul className="panel-list">
+          <li>Une pièce ramassée vaut 100 points.</li>
+          <li>Un niveau terminé vaut 500 points.</li>
+          <li>Le chrono tourne sur toute la partie et départage les ex æquo.</li>
+          <li>À la mort, entrez un pseudo pour rejoindre le classement.</li>
+        </ul>
+      </div>
+
+      <div className="panel-actions">
+        <Button variant="primary" onClick={() => navigate('/dev')}>
+          Dev Mode<span className="dev-badge">Debug</span>
+        </Button>
+        <Button variant="secondary" onClick={() => navigate('/')}>Retour</Button>
+      </div>
+    </section>
   );
 };
