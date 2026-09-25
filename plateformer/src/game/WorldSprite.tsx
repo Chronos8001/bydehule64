@@ -1,4 +1,5 @@
 import skel from '../../skel.png';
+import boss from '../../Boss.png';
 import protagonist from '../../protagoniste.png';
 import { WORLD_HEIGHT, WORLD_WIDTH } from './constants';
 import { isFlameActive } from './systems';
@@ -84,7 +85,7 @@ export const WorldSprite = (world: World) => {
             style={{ left: percentX(world.boss.position.x), top: percentY(world.boss.position.y), width: percentX(world.boss.size), height: percentY(world.boss.size) }}
           >
             <div className="boss-health"><span style={{ width: `${(world.boss.hitPoints / world.boss.maxHitPoints) * 100}%` }} /></div>
-            <img className="dungeon-enemy-image" src={skel} alt="" />
+            <img className="dungeon-enemy-image" src={boss} alt="" />
           </div>
         )}
         {(world.projectiles ?? []).map((shot, index) => (
