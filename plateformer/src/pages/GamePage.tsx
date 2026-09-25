@@ -222,14 +222,14 @@ export const GamePage: React.FC = () => {
         <GameEngine className="platformer-engine" key={runId} systems={gameSystems} entities={{ world: { ...levels[levelIndex]!.build(), renderer: WorldSprite } }} onEvent={handleEvent} running={status === 'playing'}>
           <div className="touch-controls" aria-label="Commandes tactiles">
             <div className="touch-controls-movement">
-              <button type="button" className="touch-control" data-game-key="arrowleft" aria-label="Aller à gauche" title="Aller à gauche">
+              <button type="button" className="game-button touch-control" data-game-key="arrowleft" aria-label="Aller à gauche" title="Aller à gauche">
                 <ArrowLeft aria-hidden="true" />
               </button>
-              <button type="button" className="touch-control" data-game-key="arrowright" aria-label="Aller à droite" title="Aller à droite">
+              <button type="button" className="game-button touch-control" data-game-key="arrowright" aria-label="Aller à droite" title="Aller à droite">
                 <ArrowRight aria-hidden="true" />
               </button>
             </div>
-            <button type="button" className="touch-control touch-control-jump" data-game-key="z" aria-label="Sauter" title="Sauter">
+            <button type="button" className="game-button touch-control touch-control-jump" data-game-key="z" aria-label="Sauter" title="Sauter">
               <ArrowUp aria-hidden="true" />
             </button>
           </div>

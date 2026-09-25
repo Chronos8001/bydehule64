@@ -23,7 +23,7 @@ export const LevelSelect: React.FC = () => {
         {levels.map((level, index) => (
           <button
             type="button"
-            className="level-card"
+            className="game-button level-card"
             key={level.name}
             onClick={() => navigate(`/game?level=${index + 1}`)}
           >
