@@ -42,7 +42,7 @@ const step = (world: GameWorld, jumpPressed: boolean, dispatch: Dispatch): GameW
   const player = world.player;
   const pressedKeys = world.pressedKeys;
 
-  const velocityX = pressedKeys.arrowleft || pressedKeys.a ? -MOVE_SPEED : pressedKeys.arrowright || pressedKeys.d ? MOVE_SPEED : 0;
+  const velocityX = pressedKeys.arrowleft || pressedKeys.q ? -MOVE_SPEED : pressedKeys.arrowright || pressedKeys.d ? MOVE_SPEED : 0;
   const velocityY = jumpPressed && player.onGround ? JUMP_SPEED : player.velocity.y + (player.velocity.y > 0 ? FALL_GRAVITY : GRAVITY);
   let position = { x: Math.max(0, Math.min(world.width - player.size, player.position.x + velocityX)), y: player.position.y + velocityY };
   let onGround = false;
@@ -205,7 +205,7 @@ export const gameSystems = [
       const key = event.payload?.key?.toLowerCase();
       if (!key) return;
       if (event.name === 'onKeyDown') {
-        jumpPressed ||= !pressedKeys[key] && (key === 'arrowup' || key === 'w' || key === ' ');
+        jumpPressed ||= !pressedKeys[key] && (key === 'arrowup' || key === 'z' || key === ' ');
         pressedKeys[key] = true;
       }
       if (event.name === 'onKeyUp') pressedKeys[key] = false;

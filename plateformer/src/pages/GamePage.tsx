@@ -217,7 +217,7 @@ export const GamePage: React.FC = () => {
         <span className="hud-item"><b>TEMPS</b> {formatTime(elapsedMs)}</span>
       </div>
 
-      <div className="platformer-stage" onClick={focusEngine} aria-label="Platformer game. Use arrow keys or A and D to move, and Up or W to jump. Reach the door on the right to finish the level.">
+      <div className="platformer-stage" onClick={focusEngine} aria-label="Platformer game. Use arrow keys or Q and D to move, and Up, Z, or Space to jump. Reach the door on the right to finish the level.">
         <GameEngine className="platformer-engine" key={runId} systems={gameSystems} entities={{ world: { ...levels[levelIndex]!.build(), renderer: WorldSprite } }} onEvent={handleEvent} running={status === 'playing'} />
 
         {status === 'intro' && (
