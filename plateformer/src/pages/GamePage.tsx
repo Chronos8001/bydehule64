@@ -7,6 +7,7 @@ import { levels } from '../game/levels';
 import { WorldSprite } from '../game/WorldSprite';
 import { gameSystems } from '../game/systems';
 import type { GameEvent, GameStatus } from '../game/types';
+import { useGameAudio } from '../hooks/useGameAudio';
 import { ApiError, createScore, GAME_NAME } from '../services/api';
 import './GamePage.css';
 
@@ -38,6 +39,7 @@ export const GamePage: React.FC = () => {
   const [playerName, setPlayerName] = useState('');
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const isLastLevel = levelIndex >= levels.length - 1;
 
   // La durée envoyée à l'API doit être lisible hors du cycle de rendu.
   const elapsedRef = useRef(0);
@@ -56,16 +58,40 @@ export const GamePage: React.FC = () => {
   }, [status]);
 
   const dialogue = dialogueFor(levelIndex);
+  const line = dialogue[introIndex] ?? dialogue[dialogue.length - 1];
+  const speaker = typeof line === 'object' ? line.speaker : HERO_NAME;
+  const spokenText = (typeof line === 'object' ? line.text : line) ?? '';
+  const {
+    loseSoundRef,
+    loseSoundSource,
+    musicRef,
+    musicSource,
+    playDialogueClick,
+    revealDialogue,
+    startMusic,
+    visibleChars,
+  } = useGameAudio({
+    status,
+    isBossLevel: isLastLevel,
+    spokenText,
+    isVillain: speaker !== HERO_NAME,
+  });
 
   const advanceIntro = useCallback(() => {
+    if (visibleChars < spokenText.length) {
+      revealDialogue();
+      return;
+    }
+    playDialogueClick(speaker !== HERO_NAME);
     const nextIndex = introIndex + 1;
     if (nextIndex >= dialogue.length) {
       setIntroIndex(0);
       setStatus('playing');
+      startMusic();
       return;
     }
     setIntroIndex(nextIndex);
-  }, [dialogue.length, introIndex]);
+  }, [dialogue.length, introIndex, playDialogueClick, revealDialogue, speaker, spokenText.length, startMusic, visibleChars]);
 
   /** Niveau suivant : les pièces et le chrono sont conservés, le dialogue remet le jeu en pause. */
   const nextLevel = useCallback(() => {
@@ -144,15 +170,11 @@ export const GamePage: React.FC = () => {
   }, [advanceIntro, status]);
 
   const focusEngine = (event: MouseEvent<HTMLDivElement>) => {
+    if (status === 'playing') startMusic();
     event.currentTarget.querySelector<HTMLElement>('.platformer-engine')?.focus();
   };
 
-  const isLastLevel = levelIndex >= levels.length - 1;
   const recap = `${coins} pièces · ${clearedLevels} niveau(x) · ${formatTime(elapsedMs)}`;
-
-  const line = dialogue[introIndex] ?? dialogue[dialogue.length - 1];
-  const speaker = typeof line === 'object' ? line.speaker : HERO_NAME;
-  const spokenText = typeof line === 'object' ? line.text : line;
 
   const scoreForm =
     submitState === 'saved' ? (
@@ -187,6 +209,8 @@ export const GamePage: React.FC = () => {
 
   return (
     <section className="platformer-shell">
+      <audio ref={musicRef} src={musicSource} loop preload="auto" />
+      <audio ref={loseSoundRef} src={loseSoundSource} preload="auto" />
       <div className="platformer-hud">
         <span className="hud-item"><b>PIÈCES</b> {coins}</span>
         <span className="hud-item"><b>NIVEAU</b> {levelIndex + 1}/{levels.length}</span>
@@ -200,7 +224,7 @@ export const GamePage: React.FC = () => {
           <div className="platformer-overlay platformer-intro" aria-live="polite">
             <div className="dialogue-box" data-villain={speaker !== HERO_NAME} role="dialog" aria-label="Intro dialogue" onClick={advanceIntro}>
               <p className="dialogue-name">{speaker}</p>
-              <p>{spokenText}</p>
+              <p>{spokenText.slice(0, visibleChars)}</p>
               <span className="dialogue-hint">Press Enter</span>
             </div>
           </div>
