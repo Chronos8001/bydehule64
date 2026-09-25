@@ -192,7 +192,7 @@ export const gameSystems = [
   (
     entities: EngineEntities,
     { input, time, dispatch }: {
-      input: readonly { name: string; payload?: { key?: string } }[];
+      input: readonly { name: string; payload?: { key?: string; target?: EventTarget | null } }[];
       time: { delta: number };
       dispatch: Dispatch;
     },
@@ -202,13 +202,17 @@ export const gameSystems = [
     let jumpPressed = false;
 
     input.forEach((event) => {
-      const key = event.payload?.key?.toLowerCase();
+      const target = event.payload?.target;
+      const control = target instanceof Element ? target.closest<HTMLElement>('[data-game-key]') : null;
+      const key = (event.payload?.key ?? control?.dataset.gameKey)?.toLowerCase();
       if (!key) return;
-      if (event.name === 'onKeyDown') {
+      if (event.name === 'onKeyDown' || event.name === 'onTouchStart' || event.name === 'onMouseDown') {
         jumpPressed ||= !pressedKeys[key] && (key === 'arrowup' || key === 'z' || key === ' ');
         pressedKeys[key] = true;
       }
-      if (event.name === 'onKeyUp') pressedKeys[key] = false;
+      if (event.name === 'onKeyUp' || event.name === 'onTouchEnd' || event.name === 'onTouchCancel' || event.name === 'onMouseUp') {
+        pressedKeys[key] = false;
+      }
     });
 
     // Une frame trop longue (onglet en arrière-plan) ne doit pas téléporter le joueur.

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { GameEngine } from 'react-game-engine';
+import { ArrowLeft, ArrowRight, ArrowUp } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { HERO_NAME, levelDialogues } from '../data/scriptDialogue';
 import { levels } from '../game/levels';
@@ -218,7 +219,21 @@ export const GamePage: React.FC = () => {
       </div>
 
       <div className="platformer-stage" onClick={focusEngine} aria-label="Platformer game. Use arrow keys or Q and D to move, and Up, Z, or Space to jump. Reach the door on the right to finish the level.">
-        <GameEngine className="platformer-engine" key={runId} systems={gameSystems} entities={{ world: { ...levels[levelIndex]!.build(), renderer: WorldSprite } }} onEvent={handleEvent} running={status === 'playing'} />
+        <GameEngine className="platformer-engine" key={runId} systems={gameSystems} entities={{ world: { ...levels[levelIndex]!.build(), renderer: WorldSprite } }} onEvent={handleEvent} running={status === 'playing'}>
+          <div className="touch-controls" aria-label="Commandes tactiles">
+            <div className="touch-controls-movement">
+              <button type="button" className="touch-control" data-game-key="arrowleft" aria-label="Aller à gauche" title="Aller à gauche">
+                <ArrowLeft aria-hidden="true" />
+              </button>
+              <button type="button" className="touch-control" data-game-key="arrowright" aria-label="Aller à droite" title="Aller à droite">
+                <ArrowRight aria-hidden="true" />
+              </button>
+            </div>
+            <button type="button" className="touch-control touch-control-jump" data-game-key="z" aria-label="Sauter" title="Sauter">
+              <ArrowUp aria-hidden="true" />
+            </button>
+          </div>
+        </GameEngine>
 
         {status === 'intro' && (
           <div className="platformer-overlay platformer-intro" aria-live="polite">
