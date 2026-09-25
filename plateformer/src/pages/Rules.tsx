@@ -4,8 +4,8 @@ import { Button } from '../components/ui/Button';
 import './Panel.css';
 
 const CONTROLS = [
-  { keys: ['←', '→'], alt: ['A', 'D'], label: 'Se déplacer' },
-  { keys: ['↑'], alt: ['W', 'Espace'], label: 'Sauter' },
+  { keys: ['←', '→'], alt: ['Q', 'D'], label: 'Se déplacer' },
+  { keys: ['↑'], alt: ['Z', 'Espace'], label: 'Sauter' },
   { keys: ['Entrée'], alt: [], label: 'Passer les dialogues' },
 ];
 

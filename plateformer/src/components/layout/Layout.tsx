@@ -2,10 +2,11 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
+import './Layout.css';
 export const Layout: React.FC = () => (
-  <div className="flex flex-col min-h-screen bg-slate-900 text-white font-mono">
+  <div className="site-shell">
     <Navbar />
-    <main className="flex-1 flex flex-col items-center justify-center p-4"><Outlet /></main>
+    <main className="site-main"><Outlet /></main>
     <Footer />
   </div>
 );

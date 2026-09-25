@@ -1,9 +1,9 @@
 declare module 'react-game-engine' {
-  import type { ReactElement } from 'react';
+  import type { ReactElement, ReactNode } from 'react';
 
   interface InputEvent {
     name: string;
-    payload?: { key?: string };
+    payload?: { key?: string; target?: EventTarget | null };
   }
 
   interface EngineEvent {
@@ -24,6 +24,7 @@ declare module 'react-game-engine' {
     onEvent?: (event: Event) => void;
     running?: boolean;
     className?: string;
+    children?: ReactNode;
   }
 
   export function GameEngine<Entities, Event extends EngineEvent>(props: GameEngineProps<Entities, Event>): ReactElement | null;

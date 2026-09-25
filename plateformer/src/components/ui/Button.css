@@ -1,0 +1,44 @@
+.game-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid rgba(228, 173, 120, 0.78);
+  border-radius: 0;
+  background: #1a151b;
+  box-shadow: none;
+  color: #f0c49b;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(14px, 2.4vw, 23px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: normal;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  text-shadow: 0 1px 3px rgba(15, 10, 12, 0.9);
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.game-button:hover:not(:disabled) {
+  background: #3b2725;
+  border-color: #f2c99e;
+}
+
+.game-button:active:not(:disabled) {
+  background: #4d3128;
+}
+
+.game-button:focus-visible {
+  outline: 2px solid #ffe0b3;
+  outline-offset: 3px;
+}
+
+.game-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}

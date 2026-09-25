@@ -11,13 +11,11 @@ export const Home: React.FC = () => {
   return (
     <div className="home-menu" onPointerDown={startMenuMusic}>
       <audio ref={musicRef} src={menuMusic} loop preload="auto" />
-      <h1 className="home-title">bidule 64</h1>
-      <div className="home-screen-heading">Select a Game</div>
-      <div className="home-menu-buttons">
-        <Button variant="menuGreen" onClick={() => navigate('/game')}>bidule Game</Button>
-        <Button variant="menuGreen" onClick={() => navigate('/leaderboard')}>bidule score</Button>
+      <nav className="home-menu-buttons" aria-label="Menu principal">
+        <Button variant="menuGreen" onClick={() => navigate('/game')}>Bidule game</Button>
+        <Button variant="menuGreen" onClick={() => navigate('/leaderboard')}>Bidule score</Button>
         <Button variant="menuBlue" onClick={() => navigate('/rules')}>Aide</Button>
-      </div>
+      </nav>
     </div>
   );
 };
