@@ -1,75 +1,161 @@
-# React + TypeScript + Vite
+# Bidule 64
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bidule 64 est un jeu de plateforme accompagné d'un univers narratif, de niveaux à explorer et d'un système de scores. Le projet propose une expérience complète : menu principal, aide, sélection de niveaux, jeu, sons et classement des parties.
 
-Currently, two official plugins are available:
+Le projet est compose de deux applications :
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `plateformer/` : le jeu, développé avec React, TypeScript et Vite ;
+- `API/` : l'API de scores et de statistiques, développée avec Express, TypeScript et SQLite.
 
-## React Compiler
+## Equipe
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Antoine** : lore, système et gameplay ;
+- **Simon** : level design, sons et voix ;
+- **Hugo** : architecture, boutons in-game et design des menus ;
+- **Raphaël** : conception et développement des API.
 
-## Expanding the ESLint configuration
+## Fonctionnalites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- menu principal et navigation entre les différentes pages ;
+- niveaux jouables avec systèmes de jeu et dialogues ;
+- selection de niveaux ;
+- effets sonores, musique et voix ;
+- aide et présentation des règles ;
+- enregistrement des scores ;
+- classement par score, temps, pieces ou niveaux ;
+- statistiques par joueur ;
+- API de santé et gestion des erreurs.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Prerequis
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Node.js 22.5 ou supérieur pour l'API ;
+- npm.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Installation
 
+Depuis la racine du dépôt (`Projet-r-act`) :
+
+```bash
+cd plateformer
+npm install
+
+cd ../API
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Lancer le projet
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Pour profiter du jeu et du classement, lancez le frontend et l'API dans deux terminaux séparés.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Jeu
 
+Dans un terminal :
+
+```bash
+cd plateformer
+npm run dev
 ```
+
+Le jeu est ensuite disponible à l'adresse `http://localhost:5173/`.
+
+### API
+
+Dans un autre terminal :
+
+```bash
+cd API
+npm run dev
+```
+
+L'API démarre par défaut sur `http://localhost:3001/api`.
+
+La variable `PORT` permet de modifier le port de l'API. En production, `ALLOWED_ORIGINS` permet de limiter les origines autorisées par CORS.
+
+Le frontend utilise `http://localhost:3001/api` par défaut. Pour utiliser une autre adresse, définissez `VITE_API_URL` avant de lancer Vite :
+
+```bash
+VITE_API_URL=http://localhost:3001/api npm run dev
+```
+
+Sous PowerShell :
+
+```powershell
+$env:VITE_API_URL = "http://localhost:3001/api"
+npm run dev
+```
+
+## Routes de l'application
+
+| Route          | Description                    |
+| -------------- | ------------------------------ |
+| `/`            | Menu principal                 |
+| `/game`        | Lancer une partie              |
+| `/leaderboard` | Consulter le classement        |
+| `/rules`       | Consulter l'aide et les règles |
+| `/dev`         | Sélection des niveaux          |
+
+## API
+
+| Méthode | Route                  | Description                                       |
+| ------- | ---------------------- | ------------------------------------------------- |
+| `GET`   | `/api/health`          | Vérifier que l'API fonctionne                     |
+| `GET`   | `/api/scores`          | Lister les scores avec filtres, tri et pagination |
+| `GET`   | `/api/scores/:id`      | Consulter une partie                              |
+| `POST`  | `/api/scores`          | Enregistrer une partie terminée                   |
+| `GET`   | `/api/games`           | Lister les jeux répertoriés                       |
+| `GET`   | `/api/leaderboard`     | Consulter le classement d'un jeu                  |
+| `GET`   | `/api/players/:player` | Consulter les statistiques d'un joueur            |
+
+Exemples : `GET /api/leaderboard?game=dungeon-of-bydhule&metric=score` et `GET /api/scores?sort=score&limit=20`.
+
+La suppression d'un score (`DELETE /api/scores/:id`) est réservée à l'administration et nécessite la variable `ADMIN_TOKEN` ainsi que l'en-tête `x-admin-token`.
+
+## Scripts disponibles
+
+### Frontend
+
+```bash
+npm run dev       # serveur de developpement
+npm run build     # verifier les types et construire l'application
+npm run lint      # lancer ESLint
+npm run preview   # previsualiser le build de production
+```
+
+### API
+
+```bash
+npm run dev       # serveur avec rechargement automatique
+npm run build     # compiler l'API
+npm run start     # lancer la version compilee
+npm run typecheck # verifier les types
+npm run reset     # reinitialiser les donnees de demonstration
+```
+
+## Structure du projet
+
+```text
+API/
+  src/
+    routes/       # scores et statistiques
+    middleware/   # erreurs, limitation et simulation d'incidents
+    db.ts         # connexion et accès SQLite
+
+plateformer/
+  src/
+    components/   # layout et composants d'interface
+    game/         # logique, types et niveaux du jeu
+    hooks/        # audio et ressources API
+    pages/        # écrans de l'application
+    router/       # navigation
+    services/     # communication avec l'API
+```
+
+## Technologies
+
+- React 19 et React Router ;
+- TypeScript ;
+- Vite ;
+- Express ;
+- SQLite ;
+- Zod pour la validation des donnees ;
+- ESLint pour la qualite du code.
