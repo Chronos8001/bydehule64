@@ -1,6 +1,7 @@
 .platformer-shell { width: min(980px, 100%); display: grid; justify-items: center; gap: 18px; }
-.platformer-stage { position: relative; width: 100%; aspect-ratio: 15 / 8; overflow: hidden; border: 10px solid #282534; border-radius: 8px; background: #171620; box-shadow: 0 16px 0 #15131b, 0 22px 38px rgba(16, 11, 20, .28); image-rendering: pixelated; }
+.platformer-stage { position: relative; width: 100%; aspect-ratio: 15 / 8; overflow: visible; border: 10px solid #282534; border-radius: 8px; background: #171620; box-shadow: 0 16px 0 #15131b, 0 22px 38px rgba(16, 11, 20, .28); image-rendering: pixelated; }
 .platformer-stage > div:first-child, .platformer-world { width: 100%; height: 100%; position: relative; }
+.platformer-world { overflow: hidden; }
 .touch-controls { display: none; }
 .touch-controls-movement { display: flex; gap: 10px; }
 .touch-control { display: grid; place-items: center; width: clamp(48px, 14vw, 64px); aspect-ratio: 1; padding: 0; touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -8,7 +9,7 @@
 .touch-control:active { transform: translateY(2px); }
 .touch-control-jump { width: clamp(58px, 17vw, 76px); }
 .touch-control-jump svg { width: 30px; height: 30px; }
-.platformer-engine .touch-controls { position: absolute; z-index: 20; inset: auto 10px 10px; display: flex; align-items: end; justify-content: space-between; pointer-events: none; }
+.platformer-engine .touch-controls { position: absolute; z-index: 20; inset: calc(100% + 14px) 10px auto; display: flex; align-items: end; justify-content: space-between; pointer-events: none; }
 .platformer-engine .touch-control { pointer-events: auto; }
 .platformer-scroll { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
 .platformer-player, .platformer-platform, .platformer-coin { position: absolute; box-sizing: border-box; }
@@ -94,5 +95,5 @@
 .dungeon-vignette { position: absolute; z-index: 10; inset: 0; pointer-events: none; box-shadow: inset 0 0 65px rgba(5, 6, 12, .86); }
 
 @keyframes coin-shift { from { transform: translateY(-1px) rotateY(-4deg); } to { transform: translateY(1px) rotateY(4deg); } }
-@media (max-width: 640px) { .platformer-stage { border-width: 6px; }.dungeon-arch { border-width: 8px; }.dungeon-pillar { border-width: 3px; }.dungeon-pillar::before, .dungeon-pillar::after { border-width: 2px; }.dungeon-banner { display: none; } }
+@media (max-width: 640px) { .platformer-stage { border-width: 6px; margin-bottom: 130px; }.dungeon-arch { border-width: 8px; }.dungeon-pillar { border-width: 3px; }.dungeon-pillar::before, .dungeon-pillar::after { border-width: 2px; }.dungeon-banner { display: none; } }
 @media (hover: hover) and (pointer: fine) and (min-width: 641px) { .platformer-engine .touch-controls { display: none; } }
