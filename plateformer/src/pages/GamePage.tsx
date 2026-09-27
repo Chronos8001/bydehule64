@@ -9,7 +9,9 @@ import { WorldSprite } from '../game/WorldSprite';
 import { gameSystems } from '../game/systems';
 import type { GameEvent, GameStatus } from '../game/types';
 import { useGameAudio } from '../hooks/useGameAudio';
+import { useGameContext } from '../context/GameContext';
 import { ApiError, createScore, GAME_NAME } from '../services/api';
+import { validatePlayerName } from '../utils/scoreValidation';
 import './GamePage.css';
 
 type SubmitState = 'idle' | 'saving' | 'saved' | 'error';
@@ -37,16 +39,22 @@ export const GamePage: React.FC = () => {
   const [coins, setCoins] = useState(0);
   const [clearedLevels, setClearedLevels] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
-  const [playerName, setPlayerName] = useState('');
+  const [playerNameTouched, setPlayerNameTouched] = useState(false);
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const isLastLevel = levelIndex >= levels.length - 1;
+  const { state: gameState, dispatch } = useGameContext();
+  const playerName = gameState.playerName;
+  const playerNameError = validatePlayerName(playerName);
 
   // La durée envoyée à l'API doit être lisible hors du cycle de rendu.
   const elapsedRef = useRef(0);
   // Le moteur dispatche encore quelques ticks avant de s'arrêter : on filtre les doublons.
   const statusRef = useRef<GameStatus>('intro');
-  statusRef.current = status;
+
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
 
   useEffect(() => {
     if (status !== 'playing') return;
@@ -134,16 +142,19 @@ export const GamePage: React.FC = () => {
   const submitScore = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      setPlayerNameTouched(true);
+      if (playerNameError) return;
       setSubmitState('saving');
       setSubmitError(null);
       try {
-        await createScore({
+        const score = await createScore({
           player: playerName.trim(),
           game: GAME_NAME,
           coins,
           levels: clearedLevels,
           durationMs: elapsedRef.current,
         });
+        dispatch({ type: 'scoreSaved', score });
         setSubmitState('saved');
       } catch (error) {
         setSubmitError(
@@ -154,7 +165,7 @@ export const GamePage: React.FC = () => {
         setSubmitState('error');
       }
     },
-    [clearedLevels, coins, playerName],
+    [clearedLevels, coins, dispatch, playerName, playerNameError],
   );
 
   useEffect(() => {
@@ -195,12 +206,16 @@ export const GamePage: React.FC = () => {
           autoFocus
           maxLength={20}
           value={playerName}
-          onChange={(event) => setPlayerName(event.target.value)}
+          onChange={(event) => dispatch({ type: 'setPlayerName', playerName: event.target.value })}
+          onBlur={() => setPlayerNameTouched(true)}
+          aria-invalid={playerNameTouched && Boolean(playerNameError)}
+          aria-describedby={playerNameTouched && playerNameError ? 'player-name-error' : undefined}
           placeholder="Votre pseudo"
         />
+        {playerNameTouched && playerNameError && <p id="player-name-error" className="platformer-error">{playerNameError}</p>}
         {submitError && <p role="alert" className="platformer-error">{submitError}</p>}
         <div className="platformer-actions">
-          <Button type="submit" disabled={submitState === 'saving' || playerName.trim().length < 2}>
+          <Button type="submit" disabled={submitState === 'saving' || Boolean(playerNameError)}>
             {submitState === 'saving' ? 'ENVOI…' : 'ENREGISTRER'}
           </Button>
           <Button type="button" variant="secondary" onClick={newGame}>REJOUER</Button>

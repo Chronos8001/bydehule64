@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import { useGameContext } from '../context/GameContext';
 import { getLeaderboard, listGames, type LeaderboardMetric } from '../services/api';
 import { useApiResource } from '../hooks/useApiResource';
 import './Panel.css';
@@ -14,6 +15,7 @@ export function Leaderboard() {
   const navigate = useNavigate();
   const [game, setGame] = useState<string>('');
   const [metric, setMetric] = useState<LeaderboardMetric>('score');
+  const { state: gameState } = useGameContext();
 
   // Premier appel : la liste des jeux, pour remplir le <select>.
   const gamesState = useApiResource((signal) => listGames(signal), []);
@@ -32,6 +34,7 @@ export function Leaderboard() {
   return (
     <section className="panel-screen">
       <h1 className="panel-title">Classement</h1>
+      {gameState.lastScore && <p>Dernier score enregistré : {gameState.lastScore.player}</p>}
 
       <div className="panel-section">
         <h2>Filtres</h2>
@@ -102,6 +105,7 @@ export function Leaderboard() {
                   <th>Pièces</th>
                   <th>Niveaux</th>
                   <th>Temps</th>
+                  <th>Détail</th>
                 </tr>
               </thead>
               <tbody>
@@ -113,6 +117,9 @@ export function Leaderboard() {
                     <td>{row.coins}</td>
                     <td>{row.levels}</td>
                     <td>{formatTime(row.durationMs)}</td>
+                    <td>
+                      <Button variant="secondary" onClick={() => navigate(`/scores/${row.id}`)}>Voir</Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -123,6 +130,7 @@ export function Leaderboard() {
 
       <div className="panel-actions">
         <Button variant="primary" onClick={() => navigate('/game')}>Jouer</Button>
+        <Button variant="secondary" onClick={() => navigate('/search')}>Rechercher un joueur</Button>
         <Button variant="secondary" onClick={() => navigate('/')}>Retour</Button>
       </div>
     </section>

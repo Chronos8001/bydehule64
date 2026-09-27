@@ -21,7 +21,9 @@ export function useApiResource<T>(
     const controller = new AbortController();
     let cancelled = false;
 
-    setState({ status: 'loading' });
+    queueMicrotask(() => {
+      if (!cancelled) setState({ status: 'loading' });
+    });
 
     fetcher(controller.signal)
       .then((data) => {

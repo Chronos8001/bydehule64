@@ -9,9 +9,9 @@ export const useMenuAudio = () => {
   }, []);
 
   useEffect(() => {
+    const music = musicRef.current;
     startMenuMusic();
     return () => {
-      const music = musicRef.current;
       music?.pause();
       if (music) music.currentTime = 0;
     };

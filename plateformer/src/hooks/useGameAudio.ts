@@ -70,7 +70,10 @@ export const useGameAudio = ({ status, isBossLevel, spokenText, isVillain }: Use
     if (status !== 'intro') return;
 
     let characterIndex = 0;
-    setVisibleChars(0);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) setVisibleChars(0);
+    });
     const intervalId = window.setInterval(() => {
       characterIndex += 1;
       setVisibleChars(characterIndex);
@@ -78,7 +81,10 @@ export const useGameAudio = ({ status, isBossLevel, spokenText, isVillain }: Use
       if (characterIndex >= spokenText.length) window.clearInterval(intervalId);
     }, 32);
 
-    return () => window.clearInterval(intervalId);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
   }, [isVillain, playDialogueClick, spokenText, status]);
 
   useEffect(() => () => {

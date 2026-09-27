@@ -61,6 +61,7 @@ export interface FieldError {
 
 /** Une ligne de classement : la meilleure partie d'un joueur. */
 export interface LeaderboardRow {
+  id: string;
   rank: number;
   player: string;
   score: number;

@@ -91,6 +91,9 @@ npm run dev
 | `/`            | Menu principal                 |
 | `/game`        | Lancer une partie              |
 | `/leaderboard` | Consulter le classement        |
+| `/scores/:id`  | Consulter le détail d'un score |
+| `/search`      | Rechercher un joueur           |
+| `/players/:player` | Voir les statistiques d'un joueur |
 | `/rules`       | Consulter l'aide et les règles |
 | `/dev`         | Sélection des niveaux          |
 
@@ -118,6 +121,7 @@ La suppression d'un score (`DELETE /api/scores/:id`) est réservée à l'adminis
 npm run dev       # serveur de developpement
 npm run build     # verifier les types et construire l'application
 npm run lint      # lancer ESLint
+npm test          # lancer les tests Vitest et Testing Library
 npm run preview   # previsualiser le build de production
 ```
 

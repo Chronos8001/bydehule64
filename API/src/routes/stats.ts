@@ -38,7 +38,7 @@ statsRouter.get('/leaderboard', (req: Request, res: Response, next: NextFunction
 
     const rows = db
       .prepare(
-        `SELECT player, score, coins, levels, duration_ms AS durationMs, created_at AS createdAt
+        `SELECT id, player, score, coins, levels, duration_ms AS durationMs, created_at AS createdAt
          FROM (
            SELECT *, ROW_NUMBER() OVER (PARTITION BY player ORDER BY ${orderBy}) AS rn
            FROM scores WHERE game = :game
