@@ -9,7 +9,7 @@ Le projet est compose de deux applications :
 
 ## Equipe
 
-- **Antoine** : lore, système et gameplay ;
+- **Antoine** : lore, système et gameplay, API render, déployment du site et du pour lien du site https://bydehule64.vercel.app/ ;
 - **Simon** : level design, sons et voix ;
 - **Hugo** : architecture, boutons in-game et design des menus ;
 - **Raphaël** : conception et développement des API.
